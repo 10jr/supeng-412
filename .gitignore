@@ -1,0 +1,17 @@
+node_modules/
+.env
+.DS_Store
+*.log
+.vscode/
+.idea/
+dist/
+build/
+*.tmp
+
+# VS Code user data (not project)
+argv.json
+extensions/
+agent-plugins/
+cli/
+.screenshots/
+.trae-cn/
