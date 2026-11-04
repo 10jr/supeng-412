@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>抓小球大作战</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    background-color: #FFF8DC;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    overflow: hidden;
+  }
+  #topbar {
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: rgba(139, 69, 19, 0.12);
+    border-bottom: 2px solid rgba(139, 69, 19, 0.25);
+    color: #5a3a00;
+    font-size: 20px;
+    font-weight: bold;
+    user-select: none;
+  }
+  #score { min-width: 140px; }
+  #timer {
+    font-size: 32px;
+    color: #1e90ff;
+    letter-spacing: 2px;
+  }
+  #game-area {
+    position: relative;
+    height: calc(100vh - 60px);
+    cursor: crosshair;
+  }
+  .ball {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #87ceeb, #1e90ff);
+    box-shadow: 0 2px 8px rgba(30, 144, 255, 0.5);
+    cursor: pointer;
+  }
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    z-index: 100;
+    text-align: center;
+  }
+  #start-screen h1 {
+    font-size: 56px;
+    margin-bottom: 24px;
+    color: #fffacd;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+  }
+  #start-screen p {
+    font-size: 20px;
+    margin-bottom: 40px;
+    opacity: 0.9;
+  }
+  .btn {
+    padding: 14px 48px;
+    font-size: 22px;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    background: #1e90ff;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.1s ease;
+  }
+  .btn:hover { transform: scale(1.05); background: #0077dd; }
+  .btn:active { transform: scale(0.97); }
+  #end-overlay { display: none; }
+  #end-overlay .card {
+    background: #fff;
+    color: #333;
+    padding: 40px 60px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  #end-overlay h2 {
+    font-size: 40px;
+    margin-bottom: 20px;
+    color: #5a3a00;
+  }
+  #final-score {
+    font-size: 28px;
+    margin-bottom: 32px;
+    color: #1e90ff;
+    font-weight: bold;
+  }
+  #final-score .score-num { font-size: 56px; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="score">分数: 0</div>
+  <div id="timer">02:00</div>
+  <div style="min-width:140px;text-align:right;">抓小球大作战</div>
+</div>
+
+<div id="game-area">
+
+  <div id="start-screen" class="overlay">
+    <h1>抓 小 球 大 作 战</h1>
+    <p>限时 2 分钟 &nbsp;·&nbsp; 点小球 +2 &nbsp;·&nbsp; 点空白 -1</p>
+    <button class="btn" id="start-btn">开 始 游 戏</button>
+  </div>
+
+  <div id="end-overlay" class="overlay">
+    <div class="card">
+      <h2>游戏结束</h2>
+      <div id="final-score">最终得分: <span class="score-num">0</span></div>
+      <button class="btn" id="restart-btn">再 来 一 次</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CONFIG = {
+  GAME_DURATION: 120,
+  BALL_COUNT: 3,
+  BALL_SIZE: 40,
+  BALL_SCORE: 2,
+  MISS_PENALTY: 1,
+  SPAWN_PADDING: 20,
+  OVERLAP_BUFFER: 50,
+  SPAWN_MAX_ATTEMPTS: 50,
+};
+
+const state = {
+  status: 'idle',
+  score: 0,
+  timeLeft: CONFIG.GAME_DURATION,
+  ballIds: new Set(),
+  timerId: null,
+};
+
+const DOM = {
+  scoreEl: document.getElementById('score'),
+  timerEl: document.getElementById('timer'),
+  gameArea: document.getElementById('game-area'),
+  startScreen: document.getElementById('start-screen'),
+  endOverlay: document.getElementById('end-overlay'),
+  finalScoreNum: document.querySelector('#final-score .score-num'),
+  startBtn: document.getElementById('start-btn'),
+  restartBtn: document.getElementById('restart-btn'),
+};
+
+DOM.startBtn.addEventListener('click', startGame);
+DOM.restartBtn.addEventListener('click', startGame);
+DOM.gameArea.addEventListener('click', onGameAreaClick);
+
+function startGame() {
+  resetState();
+  state.status = 'playing';
+  state.timeLeft = CONFIG.GAME_DURATION;
+  DOM.startScreen.style.display = 'none';
+  DOM.endOverlay.style.display = 'none';
+  for (let i = 0; i < CONFIG.BALL_COUNT; i++) spawnBall();
+  startTimer();
+}
+
+function resetState() {
+  if (state.timerId) { clearInterval(state.timerId); state.timerId = null; }
+  state.score = 0;
+  state.timeLeft = CONFIG.GAME_DURATION;
+  state.status = 'idle';
+  removeAllBalls();
+  renderScore();
+  renderTimer();
+}
+
+function endGame() {
+  state.status = 'ended';
+  if (state.timerId) { clearInterval(state.timerId); state.timerId = null; }
+  removeAllBalls();
+  DOM.finalScoreNum.textContent = state.score;
+  DOM.endOverlay.style.display = 'flex';
+}
+
+function startTimer() {
+  state.timerId = setInterval(() => {
+    state.timeLeft--;
+    renderTimer();
+    if (state.timeLeft <= 0) endGame();
+  }, 1000);
+}
+
+function spawnBall() {
+  const areaRect = DOM.gameArea.getBoundingClientRect();
+  const maxX = areaRect.width  - CONFIG.BALL_SIZE - CONFIG.SPAWN_PADDING * 2;
+  const maxY = areaRect.height - CONFIG.BALL_SIZE - CONFIG.SPAWN_PADDING * 2;
+  const safeMaxX = Math.max(maxX, 0);
+  const safeMaxY = Math.max(maxY, 0);
+
+  for (let attempt = 0; attempt < CONFIG.SPAWN_MAX_ATTEMPTS; attempt++) {
+    const x = CONFIG.SPAWN_PADDING + Math.random() * safeMaxX;
+    const y = CONFIG.SPAWN_PADDING + Math.random() * safeMaxY;
+    if (!overlapsExistingBalls(x, y)) {
+      createBall(x, y);
+      return;
+    }
+  }
+  createBall(CONFIG.SPAWN_PADDING, CONFIG.SPAWN_PADDING);
+}
+
+function overlapsExistingBalls(x, y) {
+  const areaRect = DOM.gameArea.getBoundingClientRect();
+  const ballEls = document.querySelectorAll('.ball');
+  const centerX = x + CONFIG.BALL_SIZE / 2;
+  const centerY = y + CONFIG.BALL_SIZE / 2;
+
+  for (const el of ballEls) {
+    const elRect = el.getBoundingClientRect();
+    const elCenterX = elRect.left - areaRect.left + CONFIG.BALL_SIZE / 2;
+    const elCenterY = elRect.top  - areaRect.top  + CONFIG.BALL_SIZE / 2;
+    const dx = centerX - elCenterX;
+    const dy = centerY - elCenterY;
+    if (Math.sqrt(dx * dx + dy * dy) < CONFIG.OVERLAP_BUFFER) return true;
+  }
+  return false;
+}
+
+function createBall(x, y) {
+  const ball = document.createElement('div');
+  ball.className = 'ball';
+  ball.style.left = x + 'px';
+  ball.style.top  = y + 'px';
+
+  ball.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state.status !== 'playing') return;
+    state.score += CONFIG.BALL_SCORE;
+    renderScore();
+    spawnBall();
+    ball.remove();
+  });
+
+  DOM.gameArea.appendChild(ball);
+}
+
+function removeAllBalls() {
+  document.querySelectorAll('.ball').forEach(el => el.remove());
+  state.ballIds.clear();
+}
+
+function onGameAreaClick(e) {
+  if (state.status !== 'playing') return;
+  if (e.target === DOM.gameArea) {
+    state.score -= CONFIG.MISS_PENALTY;
+    renderScore();
+  }
+}
+
+function renderScore() {
+  DOM.scoreEl.textContent = '分数: ' + state.score;
+}
+
+function renderTimer() {
+  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+  const s = String(state.timeLeft % 60).padStart(2, '0');
+  DOM.timerEl.textContent = m + ':' + s;
+}
+</script>
+</body>
+</html>

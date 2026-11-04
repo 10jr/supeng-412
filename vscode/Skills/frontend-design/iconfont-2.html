@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No. 02 · Lucide — Pure Vectors</title>
+<script src="cdn/lucide/lucide.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sp-ink: #0d0d08; --sp-ink-2: #171710; --sp-ink-3: #1f1f16;
+    --sp-gold: #d4af37; --sp-gold-soft: #c9a227; --sp-gold-pale: #f4e4a1;
+    --sp-bone: #f5f1e8; --sp-bone-dim: #b5ad9a; --sp-line: rgba(212,175,55,0.18);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background: var(--sp-ink); color: var(--sp-bone);
+    font-family: 'Noto Serif SC', 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+  }
+  body::before {
+    content:""; position: fixed; inset:0;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(212,175,55,0.08), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 90%, rgba(196,120,60,0.06), transparent 55%);
+    pointer-events:none; z-index:0;
+  }
+  .sp_wrapper { position:relative; z-index:1; max-width: 1200px; margin:0 auto; padding: 0 40px; }
+
+  /* 顶栏 */
+  .sp_nav {
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 32px 0; border-bottom: 1px solid var(--sp-line);
+  }
+  .sp_nav_back {
+    color: var(--sp-gold); text-decoration:none; font-size: 12px;
+    letter-spacing: 4px; text-transform:uppercase;
+    transition: color .3s ease;
+  }
+  .sp_nav_back:hover { color: var(--sp-gold-pale); }
+  .sp_nav_num {
+    font-family:'Cormorant Garamond',serif; font-size: 14px;
+    letter-spacing: 3px; color: var(--sp-bone-dim);
+  }
+
+  /* Hero */
+  .sp_hero { padding: 70px 0 60px; text-align:center; }
+  .sp_hero_label {
+    font-size: 12px; letter-spacing: 8px; text-transform:uppercase;
+    color: var(--sp-gold); margin-bottom: 24px;
+  }
+  .sp_hero_title {
+    font-family:'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: clamp(42px, 6.5vw, 88px); font-weight:300;
+    line-height: 1.08; letter-spacing: -1px; margin-bottom: 20px;
+  }
+  .sp_hero_title em {
+    font-style:italic;
+    background: linear-gradient(135deg, var(--sp-gold-pale), var(--sp-gold) 60%, var(--sp-gold-soft));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip:text;
+  }
+  .sp_hero_desc {
+    font-size: 16px; line-height: 2; color: var(--sp-bone-dim);
+    max-width: 540px; margin: 0 auto; font-weight:300;
+  }
+  .sp_hero_meta {
+    margin-top: 36px; display:flex; justify-content:center; gap: 48px;
+    font-size: 11px; letter-spacing: 3px; text-transform:uppercase; color: var(--sp-bone-dim);
+  }
+  .sp_hero_meta span { display:inline-flex; align-items:center; gap: 8px; }
+  .sp_hero_meta span svg { width: 14px; height: 14px; color: var(--sp-gold); }
+
+  /* 分组展示 */
+  .sp_section { padding: 50px 0; }
+  .sp_section_head {
+    display:flex; align-items:flex-end; justify-content:space-between;
+    margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--sp-line);
+  }
+  .sp_section_title {
+    font-family:'Cormorant Garamond',serif; font-size: 30px; font-weight:400;
+    color: var(--sp-bone); letter-spacing: 1px;
+  }
+  .sp_section_title small {
+    display:block; font-family:'Noto Serif SC',serif;
+    font-size: 11px; letter-spacing: 4px; text-transform:uppercase;
+    color: var(--sp-gold); margin-top: 6px;
+  }
+  .sp_section_idx {
+    font-family:'Cormorant Garamond',serif; font-size: 18px;
+    color: var(--sp-gold); letter-spacing: 3px;
+  }
+
+  /* 图标网格 */
+  .sp_grid { display:grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .sp_cell {
+    background: linear-gradient(160deg, var(--sp-ink-2), var(--sp-ink-3));
+    border: 1px solid var(--sp-line); border-radius: 2px;
+    padding: 28px 16px 20px; text-align:center;
+    transition: all .4s cubic-bezier(.2,.8,.2,1);
+    cursor:pointer; position:relative; overflow:hidden;
+  }
+  .sp_cell::before {
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 0%, rgba(212,175,55,0.15), transparent 60%);
+    opacity:0; transition:opacity .4s ease;
+  }
+  .sp_cell:hover {
+    border-color: var(--sp-gold); transform: translateY(-3px);
+    box-shadow: 0 16px 40px -12px rgba(0,0,0,.6), 0 0 0 1px rgba(212,175,55,.25);
+  }
+  .sp_cell:hover::before { opacity:1; }
+  .sp_cell svg {
+    width: 32px; height: 32px; color: var(--sp-bone); stroke-width: 1.5;
+    display:block; margin: 0 auto 14px; position:relative; z-index:1;
+    transition: color .3s ease, transform .4s ease;
+  }
+  .sp_cell:hover svg { color: var(--sp-gold); transform: scale(1.08); }
+  .sp_cell span {
+    display:block; font-size: 10px; letter-spacing: 2px;
+    text-transform:uppercase; color: var(--sp-bone-dim);
+    position:relative; z-index:1;
+  }
+
+  /* 配色切换 */
+  .sp_palette {
+    display:flex; justify-content:center; gap: 12px; margin: 20px 0 40px;
+  }
+  .sp_swatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid transparent; cursor:pointer; transition: all .3s ease;
+  }
+  .sp_swatch.sp_active { border-color: var(--sp-bone); transform: scale(1.15); }
+
+  /* 底部 */
+  .sp_footer {
+    text-align:center; padding: 60px 0 50px;
+    border-top: 1px solid var(--sp-line);
+    font-size: 12px; letter-spacing: 4px; color: var(--sp-bone-dim); text-transform:uppercase;
+  }
+
+  @media (max-width: 900px) { .sp_grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 560px) {
+    .sp_grid { grid-template-columns: repeat(3, 1fr); }
+    .sp_wrapper { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="sp_wrapper">
+  <nav class="sp_nav">
+    <a class="sp_nav_back" href="index.html"><i data-lucide="arrow-left"></i> 返回首页</a>
+    <span class="sp_nav_num">No. 02 · Lucide Latest</span>
+  </nav>
+
+  <header class="sp_hero">
+    <div class="sp_hero_label">Gallery Two</div>
+    <h1 class="sp_hero_title">Pure <em>Vectors</em></h1>
+    <p class="sp_hero_desc">Lucide 以纯 SVG 方式呈现图标——线条极简、尺寸自由、零字体依赖。同一组意象，换一种语言诉说。</p>
+    <div class="sp_hero_meta">
+      <span><i data-lucide="vector"></i> 矢量图标</span>
+      <span><i data-lucide="download"></i> 本地 JS</span>
+      <span><i data-lucide="zap"></i> 108 Icons</span>
+    </div>
+  </header>
+
+  <!-- 配色 -->
+  <div class="sp_palette" id="sp_palette">
+    <div class="sp_swatch sp_active" data-color="#f5f1e8" style="background:#f5f1e8"></div>
+    <div class="sp_swatch" data-color="#d4af37" style="background:#d4af37"></div>
+    <div class="sp_swatch" data-color="#e8725c" style="background:#e8725c"></div>
+    <div class="sp_swatch" data-color="#6cb4b0" style="background:#6cb4b0"></div>
+    <div class="sp_swatch" data-color="#a78bfa" style="background:#a78bfa"></div>
+    <div class="sp_swatch" data-color="#7dd3fc" style="background:#7dd3fc"></div>
+  </div>
+
+  <!-- 自然万象 -->
+  <section class="sp_section">
+    <div class="sp_section_head">
+      <div>
+        <h2 class="sp_section_title">自然万象<small>Nature &amp; Elements</small></h2>
+      </div>
+      <span class="sp_section_idx">I</span>
+    </div>
+    <div class="sp_grid">
+      <div class="sp_cell"><i data-lucide="leaf"></i><span>leaf</span></div>
+      <div class="sp_cell"><i data-lucide="sprout"></i><span>sprout</span></div>
+      <div class="sp_cell"><i data-lucide="tree-pine"></i><span>tree</span></div>
+      <div class="sp_cell"><i data-lucide="mountain"></i><span>mountain</span></div>
+      <div class="sp_cell"><i data-lucide="cloud-sun"></i><span>cloud-sun</span></div>
+      <div class="sp_cell"><i data-lucide="sun"></i><span>sun</span></div>
+      <div class="sp_cell"><i data-lucide="moon"></i><span>moon</span></div>
+      <div class="sp_cell"><i data-lucide="cloud-lightning"></i><span>lightning</span></div>
+      <div class="sp_cell"><i data-lucide="droplets"></i><span>droplets</span></div>
+      <div class="sp_cell"><i data-lucide="flame"></i><span>flame</span></div>
+      <div class="sp_cell"><i data-lucide="wind"></i><span>wind</span></div>
+      <div class="sp_cell"><i data-lucide="globe"></i><span>globe</span></div>
+    </div>
+  </section>
+
+  <!-- 艺术创作 -->
+  <section class="sp_section">
+    <div class="sp_section_head">
+      <div>
+        <h2 class="sp_section_title">艺术创作<small>Arts &amp; Creation</small></h2>
+      </div>
+      <span class="sp_section_idx">II</span>
+    </div>
+    <div class="sp_grid">
+      <div class="sp_cell"><i data-lucide="palette"></i><span>palette</span></div>
+      <div class="sp_cell"><i data-lucide="brush"></i><span>brush</span></div>
+      <div class="sp_cell"><i data-lucide="pen-tool"></i><span>pen-tool</span></div>
+      <div class="sp_cell"><i data-lucide="pen-line"></i><span>pen-line</span></div>
+      <div class="sp_cell"><i data-lucide="feather"></i><span>feather</span></div>
+      <div class="sp_cell"><i data-lucide="image"></i><span>image</span></div>
+      <div class="sp_cell"><i data-lucide="camera"></i><span>camera</span></div>
+      <div class="sp_cell"><i data-lucide="film"></i><span>film</span></div>
+      <div class="sp_cell"><i data-lucide="music"></i><span>music</span></div>
+      <div class="sp_cell"><i data-lucide="headphones"></i><span>headphones</span></div>
+      <div class="sp_cell"><i data-lucide="mic"></i><span>mic</span></div>
+      <div class="sp_cell"><i data-lucide="book-open"></i><span>book-open</span></div>
+    </div>
+  </section>
+
+  <!-- 科技未来 -->
+  <section class="sp_section">
+    <div class="sp_section_head">
+      <div>
+        <h2 class="sp_section_title">科技未来<small>Tech &amp; Future</small></h2>
+      </div>
+      <span class="sp_section_idx">III</span>
+    </div>
+    <div class="sp_grid">
+      <div class="sp_cell"><i data-lucide="cpu"></i><span>cpu</span></div>
+      <div class="sp_cell"><i data-lucide="code"></i><span>code</span></div>
+      <div class="sp_cell"><i data-lucide="terminal"></i><span>terminal</span></div>
+      <div class="sp_cell"><i data-lucide="server"></i><span>server</span></div>
+      <div class="sp_cell"><i data-lucide="rocket"></i><span>rocket</span></div>
+      <div class="sp_cell"><i data-lucide="satellite"></i><span>satellite</span></div>
+      <div class="sp_cell"><i data-lucide="wifi"></i><span>wifi</span></div>
+      <div class="sp_cell"><i data-lucide="bluetooth"></i><span>bluetooth</span></div>
+      <div class="sp_cell"><i data-lucide="cloud"></i><span>cloud</span></div>
+      <div class="sp_cell"><i data-lucide="database"></i><span>database</span></div>
+      <div class="sp_cell"><i data-lucide="settings"></i><span>settings</span></div>
+      <div class="sp_cell"><i data-lucide="shield-check"></i><span>shield</span></div>
+    </div>
+  </section>
+
+  <!-- 情感生活 -->
+  <section class="sp_section">
+    <div class="sp_section_head">
+      <div>
+        <h2 class="sp_section_title">情感生活<small>Heart &amp; Soul</small></h2>
+      </div>
+      <span class="sp_section_idx">IV</span>
+    </div>
+    <div class="sp_grid">
+      <div class="sp_cell"><i data-lucide="heart"></i><span>heart</span></div>
+      <div class="sp_cell"><i data-lucide="heart-off"></i><span>heart-off</span></div>
+      <div class="sp_cell"><i data-lucide="star"></i><span>star</span></div>
+      <div class="sp_cell"><i data-lucide="home"></i><span>home</span></div>
+      <div class="sp_cell"><i data-lucide="user"></i><span>user</span></div>
+      <div class="sp_cell"><i data-lucide="mail"></i><span>mail</span></div>
+      <div class="sp_cell"><i data-lucide="phone"></i><span>phone</span></div>
+      <div class="sp_cell"><i data-lucide="message-circle"></i><span>chat</span></div>
+      <div class="sp_cell"><i data-lucide="clock"></i><span>clock</span></div>
+      <div class="sp_cell"><i data-lucide="calendar-days"></i><span>calendar</span></div>
+      <div class="sp_cell"><i data-lucide="map-pin"></i><span>location</span></div>
+      <div class="sp_cell"><i data-lucide="bell"></i><span>bell</span></div>
+    </div>
+  </section>
+
+  <!-- 品牌矩阵 -->
+  <section class="sp_section">
+    <div class="sp_section_head">
+      <div>
+        <h2 class="sp_section_title">品牌矩阵<small>Brand Universe</small></h2>
+      </div>
+      <span class="sp_section_idx">V</span>
+    </div>
+    <div class="sp_grid">
+      <div class="sp_cell"><i data-lucide="github"></i><span>github</span></div>
+      <div class="sp_cell"><i data-lucide="twitter"></i><span>twitter</span></div>
+      <div class="sp_cell"><i data-lucide="instagram"></i><span>instagram</span></div>
+      <div class="sp_cell"><i data-lucide="linkedin"></i><span>linkedin</span></div>
+      <div class="sp_cell"><i data-lucide="dribbble"></i><span>dribbble</span></div>
+      <div class="sp_cell"><i data-lucide="behance"></i><span>behance</span></div>
+      <div class="sp_cell"><i data-lucide="youtube"></i><span>youtube</span></div>
+      <div class="sp_cell"><i data-lucide="spotify"></i><span>spotify</span></div>
+      <div class="sp_cell"><i data-lucide="apple"></i><span>apple</span></div>
+      <div class="sp_cell"><i data-lucide="google"></i><span>google</span></div>
+      <div class="sp_cell"><i data-lucide="weixin"></i><span>weixin</span></div>
+      <div class="sp_cell"><i data-lucide="weibo"></i><span>weibo</span></div>
+    </div>
+  </section>
+
+  <!-- 神秘符号 -->
+  <section class="sp_section">
+    <div class="sp_section_head">
+      <div>
+        <h2 class="sp_section_title">神秘符号<small>Mystic &amp; Signs</small></h2>
+      </div>
+      <span class="sp_section_idx">VI</span>
+    </div>
+    <div class="sp_grid">
+      <div class="sp_cell"><i data-lucide="gem"></i><span>gem</span></div>
+      <div class="sp_cell"><i data-lucide="crown"></i><span>crown</span></div>
+      <div class="sp_cell"><i data-lucide="anchor"></i><span>anchor</span></div>
+      <div class="sp_cell"><i data-lucide="compass"></i><span>compass</span></div>
+      <div class="sp_cell"><i data-lucide="key"></i><span>key</span></div>
+      <div class="sp_cell"><i data-lucide="lock"></i><span>lock</span></div>
+      <div class="sp_cell"><i data-lucide="bookmark"></i><span>bookmark</span></div>
+      <div class="sp_cell"><i data-lucide="trending-up"></i><span>trend</span></div>
+      <div class="sp_cell"><i data-lucide="infinity"></i><span>infinity</span></div>
+      <div class="sp_cell"><i data-lucide="atom"></i><span>atom</span></div>
+      <div class="sp_cell"><i data-lucide="sparkles"></i><span>sparkles</span></div>
+      <div class="sp_cell"><i data-lucide="star"></i><span>star</span></div>
+    </div>
+  </section>
+
+  <footer class="sp_footer">Lucide · ISC License · Local JS · SVG Only</footer>
+</div>
+
+<script>
+  // ===== 初始化 Lucide =====
+  lucide.createIcons();
+
+  // ===== 配色切换 JS（sp_ 命名规则） =====
+  const sp_swatches = document.querySelectorAll('.sp_swatch');
+  let sp_activeColor = '#f5f1e8';
+  sp_swatches.forEach(sp_sw => {
+    sp_sw.addEventListener('click', () => {
+      sp_swatches.forEach(s => s.classList.remove('sp_active'));
+      sp_sw.classList.add('sp_active');
+      sp_activeColor = sp_sw.dataset.color;
+      const sp_svgs = document.querySelectorAll('.sp_cell svg');
+      sp_svgs.forEach(sp_svg => { sp_svg.style.color = sp_activeColor; });
+    });
+  });
+</script>
+</body>
+</html>
