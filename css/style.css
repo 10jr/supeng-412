@@ -1,0 +1,155 @@
+/* ============================================
+   影视剧榜单样式表
+   作者：苏鹏
+   所有类名均以 SP_ 前缀开头
+   ============================================ */
+
+/* 苏鹏：全局重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+/* 苏鹏：主容器 */
+.SP_container {
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* 苏鹏：标题区域 */
+.SP_header {
+    padding: 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+}
+
+.SP_title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 苏鹏：Tab 切换区域 */
+.SP_tabs {
+    list-style: none;
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #fafafa;
+}
+
+.SP_tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 15px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    user-select: none;
+}
+
+.SP_tab-item:hover {
+    color: #e74c3c;
+    background-color: #f0f0f0;
+}
+
+/* 苏鹏：Tab 选中状态 */
+.SP_tab-item.SP_active {
+    color: #e74c3c;
+    font-weight: bold;
+    background-color: #fff;
+}
+
+.SP_tab-item.SP_active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background-color: #e74c3c;
+    border-radius: 2px;
+}
+
+/* 苏鹏：榜单列表 */
+.SP_rank-list {
+    list-style: none;
+    padding: 0 12px;
+}
+
+/* 苏鹏：榜单单项 */
+.SP_rank-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.SP_rank-item:hover {
+    background-color: #fdf6f6;
+}
+
+.SP_rank-item:last-child {
+    border-bottom: none;
+}
+
+/* 苏鹏：排名序号方块 */
+.SP_rank-num {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    background-color: #999; /* 默认灰色 */
+}
+
+/* 苏鹏：Top 1 红色 */
+.SP_rank-item.SP_rank-1 .SP_rank-num {
+    background-color: #e74c3c;
+}
+
+/* 苏鹏：Top 2 橙色 */
+.SP_rank-item.SP_rank-2 .SP_rank-num {
+    background-color: #e67e22;
+}
+
+/* 苏鹏：Top 3 黄色 */
+.SP_rank-item.SP_rank-3 .SP_rank-num {
+    background-color: #f1c40f;
+}
+
+/* 苏鹏：Top 4-5 深灰 */
+.SP_rank-item.SP_rank-4 .SP_rank-num,
+.SP_rank-item.SP_rank-5 .SP_rank-num {
+    background-color: #7f8c8d;
+}
+
+/* 苏鹏：剧名文本 */
+.SP_rank-name {
+    font-size: 15px;
+    color: #333;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
