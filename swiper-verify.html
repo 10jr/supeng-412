@@ -1,0 +1,165 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-11 13:46
+使用大模型: GLM-5.3-Flash (Trae)
+功能名称: 任务一·提示词工程师 —— Swiper 配置验证页面（#wySw4：无缝循环 / 3.2s自动翻页不停 / 圆点可点击 / cube效果）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swiper 配置验证 - 苏鹏</title>
+<!-- 苏鹏：Swiper 11 官方样式（需联网加载 CDN） -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<style>
+  /* 苏鹏：页面自定义样式 —— 自定义类名均以 SP_ 开头；
+     Swiper 库固定类名（swiper / swiper-wrapper / swiper-slide / swiper-pagination）不可改名，否则初始化失效 */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f5f6fa;
+    padding: 30px 16px;
+    min-height: 100vh;
+  }
+
+  /* 页面标题与副标题 */
+  .SP_page-title { text-align: center; font-size: 26px; color: #2c3e50; margin-bottom: 8px; }
+  .SP_page-sub   { text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 24px; }
+
+  /* Swiper 容器外观（叠加在 .swiper 之上） */
+  .SP_swiper-box {
+    width: 100%;
+    max-width: 640px;
+    height: 340px;
+    margin: 0 auto 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* 每张幻灯片的内层展示块 */
+  .SP_slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #fff;
+    font-size: 30px;
+    font-weight: bold;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    user-select: none;
+  }
+  .SP_slide small { font-size: 15px; font-weight: normal; margin-top: 10px; opacity: 0.92; }
+
+  /* 五张幻灯片的渐变底色 */
+  .SP_c1 { background: linear-gradient(135deg, #ff9a9e, #f6416b); }
+  .SP_c2 { background: linear-gradient(135deg, #42e695, #3bb2b8); }
+  .SP_c3 { background: linear-gradient(135deg, #7f7fd5, #86a8e7); }
+  .SP_c4 { background: linear-gradient(135deg, #f7b733, #fc4a1a); }
+  .SP_c5 { background: linear-gradient(135deg, #4568dc, #b06ab3); }
+
+  /* 验证清单卡片 */
+  .SP_check {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+  .SP_check h2 { font-size: 18px; color: #2c3e50; margin-bottom: 12px; }
+  .SP_check li { margin: 8px 0 8px 20px; color: #555; font-size: 14px; line-height: 1.8; }
+
+  /* 代码展示块 */
+  .SP_config {
+    margin-top: 14px;
+    background: #2d2d2d;
+    color: #f8f8f2;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* 苏鹏：仅微调圆点激活色，不改库名 */
+  .swiper-pagination-bullet-active { background: #ffffff; }
+</style>
+</head>
+<body>
+
+  <h1 class="SP_page-title">Swiper 配置验证页面</h1>
+  <p class="SP_page-sub">任务一·提示词工程师 · 容器 #wySw4 · ① 无缝循环 ② 3.2s 自动翻页不停 ③ 圆点可点击 ④ cube 效果</p>
+
+  <!-- 苏鹏：Swiper 结构 —— 库固定类名不可改，容器 id 按题目要求为 wySw4 -->
+  <div class="swiper SP_swiper-box" id="wySw4">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide"><div class="SP_slide SP_c1">第 1 张<small>手动拖动试试：松手后自动播放不停止（需求②）</small></div></div>
+      <div class="swiper-slide"><div class="SP_slide SP_c2">第 2 张<small>点击下方圆点可直接跳转（需求③）</small></div></div>
+      <div class="swiper-slide"><div class="SP_slide SP_c3">第 3 张<small>当前切换动画是立体翻转 = cube（需求④）</small></div></div>
+      <div class="swiper-slide"><div class="SP_slide SP_c4">第 4 张<small>末张继续向后滑 → 无缝接回第 1 张（需求①）</small></div></div>
+      <div class="swiper-slide"><div class="SP_slide SP_c5">第 5 张<small>每 3.2 秒自动翻一张（需求②）</small></div></div>
+    </div>
+    <!-- 圆点分页器容器（库固定类名） -->
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <!-- 苏鹏：验证清单，对照作业 4 项需求逐条验证 -->
+  <div class="SP_check">
+    <h2>验证清单（截图 + 一句话结论，对照填写）</h2>
+    <ul>
+      <li>① 无缝循环：滑到最后一张继续向后滑，直接接回第 1 张，无空白断层。</li>
+      <li>② 3.2 秒自动翻页且手动操作后不停止：手动拖一次再等待，约 3.2 秒后仍在自动翻页。</li>
+      <li>③ 圆点分页器可点击：点击第 3 个圆点，直接跳到第 3 张。</li>
+      <li>④ 初始效果为 cube：切换动画为立体翻转，而非水平平移。</li>
+    </ul>
+    <div class="SP_config">new Swiper('#wySw4', {
+  loop: true,                     // ① 无缝循环
+  autoplay: {                     // ② 自动翻页
+    delay: 3200,                  //    3.2 秒/次
+    disableOnInteraction: false,  //    手动操作后不停止（关键项）
+  },
+  pagination: {                   // ③ 圆点分页器
+    el: '.swiper-pagination',
+    clickable: true,              //    可点击跳转
+  },
+  effect: 'cube',                 // ④ 立方体效果
+  cubeEffect: {                   //  cube 外观参数（增强立体观感，非必需）
+    slideShadows: true,
+    shadow: true,
+    shadowOffset: 100,
+    shadowScale: 0.6,
+  },
+});</div>
+  </div>
+
+  <!-- 苏鹏：Swiper 11 官方脚本（需联网加载 CDN） -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // 苏鹏：初始化 #wySw4 —— 四项作业需求逐条对应注释
+    // SP_swiper4 为本页实例变量（按课堂规则以 SP_ 开头）
+    var SP_swiper4 = new Swiper('#wySw4', {
+      loop: true,                     // ① 无缝循环
+      autoplay: {                     // ② 自动翻页
+        delay: 3200,                  //    3.2 秒/次
+        disableOnInteraction: false,  //    手动操作后不停止
+      },
+      pagination: {                   // ③ 圆点分页器
+        el: '.swiper-pagination',
+        clickable: true,              //    可点击跳转
+      },
+      effect: 'cube',                 // ④ 立方体效果
+      cubeEffect: {                   //  cube 外观参数（增强立体观感）
+        slideShadows: true,
+        shadow: true,
+        shadowOffset: 100,
+        shadowScale: 0.6,
+      },
+    });
+  </script>
+</body>
+</html>
