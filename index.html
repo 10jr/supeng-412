@@ -1,0 +1,108 @@
+﻿﻿﻿﻿﻿﻿<!--
+作者: 苏鹏
+建立时间: 2026-11-04 15:00
+使用大模型: Trae AI
+功能名称: 电视剧电影热度排行榜（Tab 切换 + 列表展示）
+GitHub 仓库: supeng-rank
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>热度排行榜 - 苏鹏</title>
+<link rel="stylesheet" href="css/SP_rank.css">
+</head>
+<body>
+  <div id="SP_rank-container">
+    <div class="SP_tab-nav">
+      <button class="SP-tab-btn" data-tab="daily">每日</button>
+      <button class="SP-tab-btn" data-tab="weekly">每周</button>
+      <button class="SP-tab-btn" data-tab="monthly">每月</button>
+      <button class="SP-tab-btn" data-tab="all">全部</button>
+    </div>
+    <div class="SP_rank-content">
+      <div class="SP-tab-panel" data-panel="daily">
+        <ul class="SP_rank-list">
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">1</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">最美的时光</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">2</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">咱们结婚吧</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">3</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">渗透</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">4</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">继承者们</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">5</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">烽火佳人</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">6</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">极品女士第2季</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">7</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">爱闪亮</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">8</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">狼烟</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">9</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">钱多多炼爱记</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">10</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">苍狼</span></li>
+        </ul>
+      </div>
+      <div class="SP-tab-panel" data-panel="weekly">
+        <ul class="SP_rank-list">
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">1</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">咱们结婚吧</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">2</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">继承者们</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">3</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">最美的时光</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">4</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">爱闪亮</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">5</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">渗透</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">6</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">狼烟（2013）</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">7</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">三十岁，你好</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">8</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">钱多多炼爱记</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">9</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">特种兵之火凤凰</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">10</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">极品女士第2季</span></li>
+        </ul>
+      </div>
+      <div class="SP-tab-panel" data-panel="monthly">
+        <ul class="SP_rank-list">
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">1</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">特种兵之火凤凰</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">2</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">咱们结婚吧</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">3</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">继承者们</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">4</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">金玉满堂</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">5</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">王的女人</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">6</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">爱闪亮</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">7</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">爱情面前谁怕谁</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">8</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">英雄联盟</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">9</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">小爸爸</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">10</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">我们这拨人</span></li>
+        </ul>
+      </div>
+      <div class="SP-tab-panel" data-panel="all">
+        <ul class="SP_rank-list">
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">1</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">永不磨灭的番号</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">2</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">特种兵之火凤凰</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">3</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">新还珠格格</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">4</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">咱们结婚吧</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-red">5</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">小爸爸</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">6</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">心术</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">7</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">乡村爱情5</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">8</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">天天有喜</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">9</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">一不小心爱上你</span></li>
+          <li class="SP_rank-item"><span class="SP_rank-num SP_rank-gray">10</span><span class="SP_rank-tag">排名</span><span class="SP_rank-title">夏日甜心</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 苏鹏：项目入口导航（首页入口规则，指向新建的 Swiper 验证页面） -->
+  <p class="SP_home-nav" style="width:100%;text-align:center;margin-top:20px;">
+    <a href="swiper-homework.html" style="color:#e74c3c;font-size:15px;font-weight:bold;text-decoration:none;">🏆 三任务综合提交页（大国重器光影展）→</a>
+    &nbsp;·&nbsp;<a href="swiper-verify.html" style="color:#1e90ff;font-size:15px;text-decoration:none;">📑 任务一·提示词验证页 →</a>
+    &nbsp;·&nbsp;<a href="swiper-task2.html" style="color:#8e44ad;font-size:15px;text-decoration:none;">🎬 任务二/三·creative 电影墙页 →</a>
+    &nbsp;·&nbsp;<a href="http://localhost:3004/poems.html" style="color:#16a085;font-size:15px;text-decoration:none;">📜 诗词卡片（需启动 db/server.js）→</a>
+  </p>
+
+  <!-- 苏鹏：移动端事件课程任务入口 -->
+  <p class="SP_home-nav" style="width:100%;text-align:center;margin-top:12px;">
+    <span style="color:#888;font-size:12px;">📱 移动端事件任务：</span>
+    <a href="mobile-events/sp-task1-probe.html" style="color:#f39c12;font-size:14px;text-decoration:none;">①事件探针</a>
+    &nbsp;·&nbsp;<a href="mobile-events/sp-task2-gesture.html" style="color:#e67e22;font-size:14px;text-decoration:none;">②手势卡片</a>
+    &nbsp;·&nbsp;<a href="mobile-events/sp-task3-zoom.html" style="color:#d35400;font-size:14px;text-decoration:none;">③图片查看器</a>
+    &nbsp;·&nbsp;<a href="mobile-events/sp-task4-sensor.html" style="color:#c0392b;font-size:14px;text-decoration:none;">④摇一摇</a>
+  </p>
+
+  <script src="js/SP_tab.js"></script>
+  <script>
+    // 苏鹏：页面加载完成后初始化 Tab 选项卡，默认激活"每日"
+    document.addEventListener('DOMContentLoaded', function () {
+      SP_initTabs('#SP_rank-container', 'daily');
+    });
+  </script>
+</body>
+</html>

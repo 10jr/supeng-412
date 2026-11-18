@@ -1,0 +1,344 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-11 14:14
+使用大模型: GLM-5.3-Flash (Trae)
+功能名称: Swiper 大国重器光影展·三任务综合提交页（任务一提示词工程师 + 任务二 creative 电影墙 + 任务三 新增展品/键盘控制）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大国重器光影展·三任务综合提交页 - 苏鹏</title>
+<!-- 苏鹏：Swiper 11 官方样式与脚本（CDN，需联网） -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<style>
+  /* 苏鹏：自定义类名均以 SP_ 开头；Swiper 库固定类名（swiper/swiper-wrapper/swiper-slide）不可改名 */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f5f6fa;
+    padding: 30px 16px;
+    min-height: 100vh;
+  }
+
+  /* 页面标题 */
+  .SP_task-title { text-align: center; font-size: 26px; color: #2c3e50; margin-bottom: 8px; }
+  .SP_task-sub   { text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 26px; }
+
+  /* 任务一：提示词迭代记录卡片 */
+  .SP_task1-card {
+    max-width: 720px;
+    margin: 0 auto 30px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 26px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+  .SP_task1-card h2 { font-size: 18px; color: #2c3e50; margin-bottom: 14px; }
+  .SP_round  { font-size: 14px; font-weight: bold; color: #1e90ff; margin: 14px 0 6px; }
+  .SP_quote {
+    background: #eef6ff;
+    border-left: 4px solid #1e90ff;
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: #445;
+    line-height: 1.8;
+  }
+  .SP_code {
+    margin-top: 8px;
+    background: #2d2d2d;
+    color: #f8f8f2;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .SP_errs { margin: 8px 0 0 20px; font-size: 13px; color: #a94442; line-height: 1.9; }
+  .SP_ok-list { margin: 10px 0 0 20px; font-size: 13.5px; color: #2c7a3f; line-height: 2; }
+
+  /* 任务二/三：7 个效果按钮条 */
+  .SP_effect-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 760px;
+    margin: 0 auto 22px;
+  }
+  .SP-btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    color: #555;
+    background: #fff;
+    border: 1px solid #d5dbe3;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .SP-btn:hover { color: #1e90ff; border-color: #1e90ff; }
+  .SP-btn.SP-btn-active { background: #1e90ff; border-color: #1e90ff; color: #fff; font-weight: bold; }
+
+  /* 演示舞台：溢出可见，让 creative 电影墙的左右卡片露出台面 */
+  .SP_demo-box { max-width: 720px; margin: 0 auto 14px; }
+  .swiper { overflow: visible; } /* 苏鹏：允许相邻 slide 露出，电影墙效果需要 */
+  #wySw4 {
+    width: 100%;
+    max-width: 640px;
+    height: 360px;
+    margin: 0 auto;
+  }
+
+  /* 单张展品卡片 */
+  .SP_slide-card { height: 100%; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14); }
+  .SP_slide-img  { width: 100%; height: 252px; object-fit: cover; display: block; }
+  .SP_slide-body { padding: 14px 20px 16px; text-align: center; }
+  .SP_slide-title { font-size: 20px; color: #2c3e50; margin-bottom: 6px; }
+  .SP_slide-desc  { font-size: 14px; color: #7f8c8d; }
+
+  /* 外置圆点分页器 */
+  #SP_pag4 { text-align: center; margin-bottom: 26px; }
+  #SP_pag4 .swiper-pagination-bullet-active { background: #1e90ff; }
+
+  /* 追问回答卡（任务二硬性要求） */
+  .SP_answer {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 26px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+  .SP_answer h2 { font-size: 18px; color: #2c3e50; margin-bottom: 12px; }
+  .SP_answer p  { font-size: 14px; color: #555; line-height: 1.9; margin-bottom: 10px; }
+  .SP_answer strong { color: #e74c3c; }
+  .SP_answer code {
+    background: #eef2f7;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    color: #c0392b;
+  }
+  .SP_tip {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #fff8e6;
+    border-left: 4px solid #f7b733;
+    font-size: 13px;
+    color: #7a5c00;
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+  <h1 class="SP_task-title">Swiper 大国重器光影展 · 三任务综合提交页</h1>
+  <p class="SP_task-sub">苏鹏 · 任务一 提示词工程师 ｜ 任务二 creative 电影墙 ｜ 任务三 新增展品 + 键盘控制 · 协作大模型 GLM-5.3-Flash</p>
+
+  <!-- ==================== 任务一：提示词迭代记录（保留每轮提示词与 AI 回答） ==================== -->
+  <div class="SP_task1-card">
+    <h2>任务一 · 提示词工程师：让 AI 听懂需求</h2>
+
+    <p class="SP_round">第 1 轮提示词（新手版）</p>
+    <div class="SP_quote">帮我写一个 Swiper 轮播图配置，容器是 #wySw4，要能自动播放，谢谢。</div>
+    <p class="SP_round">第 1 轮 AI 回答</p>
+    <div class="SP_code">new Swiper('#wySw4', {
+  autoplay: 3000,
+  loop: true,
+});</div>
+    <ul class="SP_errs">
+      <li>错误①：autoplay: 3000 —— 间隔错（3000 ≠ 3.2 秒），且是旧版数字写法，新版应为对象形式</li>
+      <li>错误②：缺 disableOnInteraction: false —— 用户手动一拖动，自动播放就停止</li>
+      <li>错误③：分页器配置整体缺失 —— 圆点不会出现，更谈不上可点击</li>
+      <li>错误④：缺 effect: 'cube' —— 默认是 slide 平移效果</li>
+    </ul>
+
+    <p class="SP_round">第 2 轮提示词（精确拆解版）</p>
+    <div class="SP_quote">请生成 new Swiper('#wySw4', {...}) 完整配置，使用新版 Swiper 语法，严格满足以下 4 项需求并在每个配置项后加注释标明对应第几条：① 无缝循环播放；② 每 3.2 秒自动翻页，且用户手动拖动/点击后自动播放不停止（注意 disableOnInteraction 参数）；③ 圆点分页器且可点击跳转；④ 切换效果为 cube（立方体）。最后逐条说明每项需求对应哪个配置项。</div>
+    <p class="SP_round">第 2 轮 AI 回答（正确答案）</p>
+    <div class="SP_code">new Swiper('#wySw4', {
+  loop: true,                     // ① 无缝循环
+  autoplay: {                     // ② 自动翻页
+    delay: 3200,                  //    3.2 秒/次
+    disableOnInteraction: false,  //    手动操作后不停止（关键项）
+  },
+  pagination: { el: '.swiper-pagination', clickable: true }, // ③ 圆点可点击
+  effect: 'cube',                 // ④ 立方体效果
+});</div>
+
+    <p class="SP_round">亲自验证结论（截图实测）</p>
+    <ul class="SP_ok-list">
+      <li>① 无缝循环：末张后无缝接回首张，无空白断层 ✅</li>
+      <li>② 3.2 秒自动翻页：手动拖一次后仍在约 3.2 秒继续自动翻页 ✅</li>
+      <li>③ 圆点可点击：点击第 3 个圆点直接跳到第 3 张 ✅</li>
+      <li>④ 初始效果 cube：切换动画为立体翻转而非水平平移 ✅</li>
+    </ul>
+  </div>
+
+  <!-- ==================== 任务二 + 任务三：统一演示四舞台 ==================== -->
+  <!-- 苏鹏：7 个效果按钮（课堂 6 种 + 任务二新增 creative），初始效果 cube 对应任务一需求④ -->
+  <div class="SP_effect-bar" id="SP_effect-bar">
+    <button class="SP-btn" data-effect="slide">slide 平推（稳重）</button>
+    <button class="SP-btn" data-effect="fade">fade 淡入淡出（优雅）</button>
+    <button class="SP-btn SP-btn-active" data-effect="cube">cube 3D 立方体（炫酷）</button>
+    <button class="SP-btn" data-effect="coverflow">coverflow 画廊堆叠（沉浸）</button>
+    <button class="SP-btn" data-effect="flip">flip 翻页（复古）</button>
+    <button class="SP-btn" data-effect="cards">cards 卡片（俏皮）</button>
+    <button class="SP-btn" data-effect="creative">creative 电影墙（第 7 种 · 新增）</button>
+  </div>
+
+  <!-- 苏鹏：Swiper 三层骨架，容器 id 按题目要求为 wySw4，分页器外置 id 为 SP_pag4 -->
+  <div class="SP_demo-box">
+    <div class="swiper" id="wySw4">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <div class="SP_slide-card">
+            <img class="SP_slide-img" src="https://aka.doubaocdn.com/s/zZQEHj5SOh" alt="天宫空间站">
+            <div class="SP_slide-body">
+              <h3 class="SP_slide-title">天宫空间站</h3>
+              <p class="SP_slide-desc">试试上面的效果按钮（7 种任你切）</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="SP_slide-card">
+            <img class="SP_slide-img" src="https://aka.doubaocdn.com/s/AqprsRTbXR" alt="复兴号动车组">
+            <div class="SP_slide-body">
+              <h3 class="SP_slide-title">复兴号动车组</h3>
+              <p class="SP_slide-desc">同一组照片，七种讲述方式</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="SP_slide-card">
+            <img class="SP_slide-img" src="https://aka.doubaocdn.com/s/NmLfm47q2N" alt="C919 大飞机">
+            <div class="SP_slide-body">
+              <h3 class="SP_slide-title">C919 大飞机</h3>
+              <p class="SP_slide-desc">企业官网爱用 fade</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="SP_slide-card">
+            <img class="SP_slide-img" src="https://aka.doubaocdn.com/s/k5E1ov2Wg4" alt="奋斗者号">
+            <div class="SP_slide-body">
+              <h3 class="SP_slide-title">奋斗者号</h3>
+              <p class="SP_slide-desc">游戏网站爱用 cube</p>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="SP_slide-card">
+            <img class="SP_slide-img" src="https://aka.doubaocdn.com/s/1tKMlLetS3" alt="中国天眼 FAST">
+            <div class="SP_slide-body">
+              <h3 class="SP_slide-title">中国天眼 FAST</h3>
+              <p class="SP_slide-desc">相册页面爱用 coverflow，电影墙选 creative</p>
+            </div>
+          </div>
+        </div>
+        <!-- 苏鹏：任务三新增第六件展品——爱达·魔都号（图片为 AI 生成横版 16:9） -->
+        <div class="swiper-slide">
+          <div class="SP_slide-card">
+            <img class="SP_slide-img" src="images/SP_adora-magic-city.jpg" alt="爱达·魔都号">
+            <div class="SP_slide-body">
+              <h3 class="SP_slide-title">爱达·魔都号</h3>
+              <p class="SP_slide-desc">首艘国产大型邮轮 · 2024 年 1 月首航（任务三新增展品）</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 苏鹏：外置圆点分页器 -->
+    <div id="SP_pag4"></div>
+  </div>
+
+  <!-- ==================== 追问回答 + 答辩知识点 ==================== -->
+  <div class="SP_answer" id="SP_ai-answer">
+    <h2>追问：prev / next 的 transform 各控制什么？（我自己的话）</h2>
+    <p><strong>prev 的 transform</strong> 控制"即将退场的上一张"的去向：往哪边退（<code>translate</code> 的 x 是 -85%，即左移 85% 自身宽度）、退得多远所以显得多小（z 是 -320px，被推远就变小）、退的时候歪多少度（<code>rotate</code> 第三个值 -14，向左倾 14 度）、退场后还剩多亮（<code>opacity</code> 0.4）。</p>
+    <p><strong>next 的 transform</strong> 控制"即将进场的下一张"的来路：从右边来（x 是 85%）、离镜头比上一张近所以看起来是"放大"进场（z 是 -120px，比 prev 的 -320 近）、歪 12 度进场（rotate 12）、亮度 0.7。</p>
+    <p><strong>一句话总结</strong>：prev 管"退场时的姿态"，next 管"进场时的姿态"。两个都写好，左边斜着缩进去的是看过的海报，右边微微放大等着你选的是下一张——这就是电影选片墙的观感。</p>
+    <div class="SP_tip">答辩知识点①：transform 里的百分号是相对 <strong>slide 自身尺寸</strong>的——x% 相对自身宽度，y% 相对自身高度，z 轴是像素距离；rotate 单位是度（deg）。<br>答辩知识点②：想把卡片转到 20 度，把 creativeEffect 里 rotate 的第三个值从 -14 改成 <strong>-20</strong>（或 20）即可。</div>
+    <div class="SP_tip"><strong>任务三新增说明</strong>：① 第六件展品「爱达·魔都号」（首艘国产大型邮轮，2024 年 1 月首航），配图为 AI 生成的横版 16:9 图片（images/SP_adora-magic-city.jpg），slide 结构完整；② 超纲能力选用 <strong>keyboard 键盘控制</strong>：<code>keyboard: { enabled: true, onlyInViewport: true }</code>——页面聚焦后按 ←/→ 方向键翻页，onlyInViewport 表示轮播处于可视区域内才响应按键，不干扰页面其他操作。</div>
+  </div>
+
+  <!-- 苏鹏：Swiper 11 官方脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // 苏鹏：当前 Swiper 实例变量（按课堂规则以 SP_ 开头）
+    var SP_swiper4 = null;
+
+    /**
+     * 函数功能说明：按传入的效果名构建/重建 #wySw4 的 Swiper 实例
+     * 配置满足任务一 4 项需求（loop / 3.2s 不停 / 圆点可点击 / 初始 cube），
+     * 并包含任务二 creative 电影墙参数与任务三 keyboard 键盘控制
+     * @param {string} effectName  - 效果名：slide/fade/cube/coverflow/flip/cards/creative
+     * @param {number} initialSlide - 重建时保持的照片序号
+     */
+    function SP_buildSwiper4(effectName, initialSlide) {
+      return new Swiper('#wySw4', {
+        loop: true,                                        // 任务一①：无缝循环
+        effect: effectName,                                // 当前效果，点按钮切换
+        speed: 800,                                        // 切换动画时长
+        autoplay: { delay: 3200, disableOnInteraction: false }, // 任务一②：3.2s 且手动后不停
+        pagination: { el: '#SP_pag4', clickable: true },   // 任务一③：圆点分页器可点击
+        keyboard: { enabled: true, onlyInViewport: true }, // 任务三：键盘控制 ←/→ 翻页
+        initialSlide: initialSlide || 0,                   // 切换效果后停留在当前照片
+        cubeEffect: { slideShadows: true, shadow: true, shadowOffset: 60, shadowScale: 0.8 },
+        coverflowEffect: { rotate: 30, stretch: 0, depth: 150, modifier: 1.5, slideShadows: true },
+        flipEffect: { slideShadows: true },
+        cardsEffect: { perSlideRotate: 6, perSlideOffset: 8 },
+        // 苏鹏：任务二新增 —— creative 电影墙
+        // prev：上一张缩小左移并带角度；next：下一张放大右移进场
+        creativeEffect: {
+          limitProgress: 1,        // 只对相邻前后各 1 张生效，聚焦"选片墙"观感
+          shadowPerProgress: true, // 阴影随切换进度变化
+          prev: {
+            shadow: true,
+            origin: 'center center',
+            translate: ['-85%', 0, -320],  // 左移 85% 自身宽度 + 推远 320px（缩小）
+            rotate: [0, 0, -14],           // 向左倾斜 14 度
+            opacity: 0.4                   // 变暗
+          },
+          next: {
+            shadow: true,
+            origin: 'center center',
+            translate: ['85%', 0, -120],   // 右移 85% 自身宽度 + 只推远 120px（比 prev 大，即"放大进场"）
+            rotate: [0, 0, 12],            // 向右倾斜 12 度
+            opacity: 0.7
+          }
+        }
+      });
+    }
+
+    // 苏鹏：函数功能说明——为 7 个效果按钮绑定点击事件，切换时销毁旧实例并按新效果重建
+    function SP_bindEffectButtons() {
+      var SP_buttons = document.querySelectorAll('.SP-btn');
+      SP_buttons.forEach(function (SP_btn) {
+        SP_btn.addEventListener('click', function () {
+          var SP_effect = SP_btn.getAttribute('data-effect');
+          // 先清除所有按钮的选中状态，再设置当前按钮选中（课堂 Tab 同款套路）
+          SP_buttons.forEach(function (SP_b) { SP_b.classList.remove('SP-btn-active'); });
+          SP_btn.classList.add('SP-btn-active');
+          // 记住当前照片序号 → 销毁旧实例 → 按新效果重建
+          var SP_current = SP_swiper4 ? SP_swiper4.realIndex : 0;
+          if (SP_swiper4) SP_swiper4.destroy(true, true);
+          SP_swiper4 = SP_buildSwiper4(SP_effect, SP_current);
+        });
+      });
+    }
+
+    // 苏鹏：页面加载完成后初始化——初始效果 cube（任务一需求④），并绑定按钮
+    document.addEventListener('DOMContentLoaded', function () {
+      SP_swiper4 = SP_buildSwiper4('cube', 0);
+      SP_bindEffectButtons();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+﻿﻿﻿﻿﻿﻿/*
+ * 作者: 苏鹏
+ * 功能: 电视剧电影热度排行榜页面样式
+ * 日期: 2026-11-04
+ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  background-color: #f0f0f0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; align-items: center; /* 苏鹏：改为纵向排列，容器居中、底部入口链接独立成行 */
+  padding: 40px 16px;
+}
+#SP_rank-container {
+  width: 100%; max-width: 560px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.SP_tab-nav {
+  display: flex;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+.SP-tab-btn {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 15px;
+  color: #666666;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  font-weight: 500;
+}
+.SP-tab-btn:hover { color: #1e90ff; background-color: rgba(30,144,255,0.05); }
+.SP-tab-btn.SP-tab-active {
+  background-color: #1e90ff;
+  color: #ffffff;
+  font-weight: bold;
+}
+.SP-tab-panel { display: none; animation: SP_fadeIn 0.25s ease; }
+.SP-tab-panel.SP-tab-active { display: block; }
+@keyframes SP_fadeIn { from{opacity:0} to{opacity:1} }
+.SP_rank-list { list-style: none; padding: 0 20px; }
+.SP_rank-item {
+  display: flex; align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 12px;
+}
+.SP_rank-item:last-child { border-bottom: none; }
+.SP_rank-num {
+  width: 36px; height: 36px;
+  line-height: 36px; text-align: center;
+  border-radius: 6px;
+  font-size: 18px; font-weight: bold;
+  color: #ffffff; flex-shrink: 0;
+}
+.SP_rank-num.SP_rank-red { background-color: #e74c3c; }
+.SP_rank-num.SP_rank-gray { background-color: #b0b0b0; }
+.SP_rank-tag {
+  width: 28px; font-size: 12px;
+  color: #999999; flex-shrink: 0;
+}
+.SP_rank-title {
+  font-size: 15px; color: #333333;
+  flex: 1;
+}

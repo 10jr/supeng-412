@@ -1,0 +1,163 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-13 14:30
+使用大模型: Kimi-K3.1-Pro (Trae)
+功能名称: 诗词卡片展示页——上图下文结构，通过 fetch 从本地 3004 服务器获取 db.json 的 poems 数据
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>诗词欣赏 - 苏鹏</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+
+  /* 苏鹏：页面大标题 */
+  .SP_page-title {
+    text-align: center;
+    font-size: 28px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+  .SP_page-sub {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 30px;
+  }
+
+  /* 苏鹏：卡片网格容器，自适应列数 */
+  #SP_poem-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 22px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* 苏鹏：单张卡片——上图下文 */
+  .SP_card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .SP_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  }
+
+  /* 苏鹏：卡片上半部分——图片 */
+  .SP_card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    background: #eee;
+  }
+
+  /* 苏鹏：卡片下半部分——文字区 */
+  .SP_card-body {
+    padding: 16px 18px 20px;
+  }
+  .SP_card-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 3px solid #1e90ff;
+  }
+  .SP_card-content {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  /* 苏鹏：加载状态 / 错误提示 */
+  .SP_status {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    padding: 40px 0;
+    font-size: 15px;
+  }
+  .SP_status-error { color: #e74c3c; }
+</style>
+</head>
+<body>
+
+  <h1 class="SP_page-title">📜 诗词欣赏</h1>
+  <p class="SP_page-sub">苏鹏 · 数据来自本地 3004 服务器 · db/poems</p>
+
+  <div id="SP_poem-list">
+    <p class="SP_status">正在加载诗词数据...</p>
+  </div>
+
+  <script>
+    // 苏鹏：页面加载完成后调用数据加载函数
+    document.addEventListener('DOMContentLoaded', SP_loadPoems);
+
+    /**
+     * 苏鹏：从本地 3004 服务器拉取 poems 数组
+     * 接口地址 http://localhost:3004/api/poems（由 db/server.js 提供）
+     * 失败时展示友好提示，不会白屏
+     */
+    async function SP_loadPoems() {
+      const SP_list = document.getElementById('SP_poem-list');
+      const SP_API = 'http://localhost:3004/api/poems';
+      try {
+        const SP_res = await fetch(SP_API);
+        if (!SP_res.ok) {
+          throw new Error('HTTP ' + SP_res.status);
+        }
+        const SP_poems = await SP_res.json();
+        SP_renderCards(SP_poems);
+      } catch (SP_err) {
+        console.error('苏鹏：获取 poems 失败', SP_err);
+        SP_list.innerHTML = `
+          <div class="SP_status SP_status-error" style="grid-column:1/-1;">
+            <p style="font-size:18px;margin-bottom:12px;">❌ 无法连接到数据服务器</p>
+            <p style="font-size:14px;color:#888;line-height:1.8;">
+              请确认你已在 <b>db</b> 目录启动服务器：<br>
+              <code style="background:#fff3cd;padding:4px 8px;border-radius:4px;color:#856404;display:inline-block;margin-top:8px;">
+                cd db<br>node server.js
+              </code><br>
+              <span style="font-size:12px;color:#aaa;margin-top:8px;display:inline-block;">启动后再刷新本页面即可</span>
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    /**
+     * 苏鹏：把 poems 数组渲染成"上图下文"卡片
+     * @param {Array} SP_poems - 诗词数组，每项含 pic / title / content
+     */
+    function SP_renderCards(SP_poems) {
+      const SP_list = document.getElementById('SP_poem-list');
+      if (!Array.isArray(SP_poems) || SP_poems.length === 0) {
+        SP_list.innerHTML = '<p class="SP_status">暂无诗词数据</p>';
+        return;
+      }
+      SP_list.innerHTML = SP_poems.map(SP_p => `
+        <div class="SP_card">
+          <img src="${SP_p.pic}" alt="${SP_p.title}" loading="lazy">
+          <div class="SP_card-body">
+            <div class="SP_card-title">${SP_p.title}</div>
+            <div class="SP_card-content">${SP_p.content}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+
+</body>
+</html>

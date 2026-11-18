@@ -1,0 +1,12 @@
+# 本地工具
+.nodejs/
+.trae-html-share-packages/
+Skills/
+XIAOQIU
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
