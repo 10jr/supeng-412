@@ -125,6 +125,40 @@
         .SP_note { color: var(--SP_c_muted); font-size: 12px; margin-top: 10px; }
         .SP_inline_code { color: var(--SP_c_red); font-size: 13px; font-family: Consolas, monospace; }
 
+        /* 真机录屏演示区 */
+        .SP_video_box {
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--SP_c_line);
+        }
+        .SP_video_box video { display: block; width: 100%; max-height: 480px; background: #000; }
+        .SP_video_empty {
+            padding: 26px 18px;
+            text-align: center;
+            color: var(--SP_c_muted);
+            font-size: 13px;
+            line-height: 1.9;
+            background: var(--SP_c_violet_soft);
+        }
+        .SP_video_empty strong { color: var(--SP_c_violet); }
+        .SP_video_empty code {
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: var(--SP_c_red);
+            background: #fff;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        .SP_video_meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--SP_c_muted);
+        }
+
         .SP_foot {
             max-width: 520px;
             margin: 26px auto 0;
@@ -246,6 +280,30 @@
             </ul>
         </section>
 
+        <!-- 真机录屏演示 -->
+        <section class="SP_block">
+            <h2>运行演示 · 手机真机录屏</h2>
+            <p style="font-size:13px;color:var(--SP_c_muted);margin-bottom:12px">
+                以下为在真机上依次操作四个任务的录屏，可验证跟手拖动、双指缩放与摇一摇等触摸效果（桌面浏览器无法完整还原）。
+            </p>
+
+            <div class="SP_video_box">
+                <video id="SP_demo-video" controls playsinline preload="metadata"
+                       poster="../images/food/1-kungpao.jpg" src="demo-mobile.mp4"></video>
+                <div class="SP_video_empty" id="SP_demo-empty" style="display:none">
+                    <div>🎬 <strong>录屏待上传</strong></div>
+                    <div>把手机录屏文件命名为 <code>demo-mobile.mp4</code>，放到 <code>mobile-events/</code> 目录下，刷新本页即可播放。</div>
+                    <div>录制建议：画面里依次示范 事件探针 → 卡片滑动 → 双指缩放 → 摇一摇。</div>
+                </div>
+            </div>
+
+            <div class="SP_video_meta">
+                <span>格式：MP4 / H.264</span>
+                <span>建议时长：30~60 秒</span>
+                <span>横竖屏均可，竖屏观感更好</span>
+            </div>
+        </section>
+
         <section class="SP_block">
             <h2>运行截图清单（提交要求 ①）</h2>
             <ol>
@@ -260,5 +318,27 @@
     <footer class="SP_foot">
         高级网页设计 · 移动端事件课堂任务 · <a href="../index.html">返回课堂首页</a>
     </footer>
+    <!-- 苏鹏：真机录屏加载失败时显示"待上传"提示，避免出现空白播放器 -->
+    <script>
+        (function () {
+            const SP_video = document.getElementById('SP_demo-video');
+            const SP_empty = document.getElementById('SP_demo-empty');
+            if (!SP_video || !SP_empty) return;
+
+            // 苏鹏：隐藏播放器、显示待上传说明
+            function SP_showEmpty() {
+                SP_video.style.display = 'none';
+                SP_empty.style.display = 'block';
+            }
+
+            // 苏鹏：文件缺失或格式不支持时触发 error
+            SP_video.addEventListener('error', SP_showEmpty);
+
+            // 苏鹏：兜底检测——2 秒内没拿到任何元数据，判定视频不存在
+            setTimeout(function () {
+                if (SP_video.readyState === 0) SP_showEmpty();
+            }, 2000);
+        })();
+    </script>
 </body>
 </html>

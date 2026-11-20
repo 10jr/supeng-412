@@ -35,8 +35,8 @@
 ---
 
 ---
-**时间**: 2026-11-18 16:44
-**模型**: Kimi-K3.1-Pro
+**时间**: 2026-11-20 09:10
+**模型**: DeepSeek-V4.1-Flash
 **提示词内容**:
-> `https://wuyiming123-1.github.io/wuyiming305/mobile-events/index.html`做成他这样
+> 不是还需要在手机端操作视频展示到网页吗
 ---
