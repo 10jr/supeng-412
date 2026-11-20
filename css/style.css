@@ -17,6 +17,23 @@ body {
     padding: 20px;
 }
 
+/* 苏鹏：课堂任务入口链接 */
+.SP_entry {
+    max-width: 480px;
+    margin: 16px auto 0;
+    text-align: center;
+    font-size: 14px;
+}
+.SP_entry a {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background-color: #4A2E8C;
+    color: #ffffff;
+    text-decoration: none;
+}
+.SP_entry a:active { background-color: #37216b; }
+
 /* 苏鹏：主容器 */
 .SP_container {
     max-width: 480px;

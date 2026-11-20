@@ -1,0 +1,344 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-18 16:50
+使用大模型: Kimi-K3.1-Pro
+功能名称: 移动端触摸事件·任务集总览页（含任务一"事件侦探"观察记录）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 手机页面必备三件套之一：viewport（不写会整体缩小） -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>移动端触摸事件 · 任务总览 · 苏鹏</title>
+    <style>
+        /* 必备三件套之二：全局去掉点击灰块（iOS / 安卓都认） */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --SP_c_paper: #F3F4F6;
+            --SP_c_card: #FFFFFF;
+            --SP_c_ink: #1C2430;
+            --SP_c_muted: #75808F;
+            --SP_c_line: #DCE1E8;
+            --SP_c_violet: #4A2E8C;
+            --SP_c_violet_soft: #EAE5F6;
+            --SP_c_red: #E84A3D;
+        }
+
+        body {
+            background: var(--SP_c_paper);
+            color: var(--SP_c_ink);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .SP_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--SP_c_line);
+        }
+
+        .SP_back { color: var(--SP_c_violet); font-size: 13px; font-weight: 600; }
+        .SP_back:hover { text-decoration: underline; }
+        .SP_topbar span { color: var(--SP_c_muted); font-size: 12px; }
+
+        .SP_main { max-width: 520px; margin: 0 auto; padding: 24px 20px; }
+
+        .SP_hero h1 { font-size: 26px; font-weight: 800; }
+        .SP_hero h1 em { font-style: normal; color: var(--SP_c_violet); }
+        .SP_hero p { color: var(--SP_c_muted); font-size: 14px; margin-top: 6px; }
+
+        .SP_id_card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin: 16px 0 22px;
+            padding: 12px 16px;
+            background: var(--SP_c_violet_soft);
+            border-radius: 14px;
+            font-size: 13px;
+            color: var(--SP_c_violet);
+            font-weight: 600;
+        }
+
+        /* 任务入口卡片 */
+        .SP_task {
+            display: block;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            background: var(--SP_c_card);
+            border: 1px solid var(--SP_c_line);
+            border-radius: 18px;
+            transition: transform .15s ease, border-color .15s ease;
+        }
+        .SP_task:active { transform: scale(.98); border-color: var(--SP_c_violet); }
+        .SP_task_head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .SP_task_star { color: #D9A400; font-size: 15px; letter-spacing: 2px; }
+        .SP_task h2 { font-size: 17px; }
+        .SP_task p { color: var(--SP_c_muted); font-size: 13px; }
+        .SP_task_go { display: inline-block; margin-top: 10px; color: var(--SP_c_violet); font-size: 13px; font-weight: 700; }
+
+        /* 记录区块 */
+        .SP_block {
+            margin-top: 28px;
+            padding: 20px 18px;
+            background: var(--SP_c_card);
+            border: 1px solid var(--SP_c_line);
+            border-radius: 18px;
+        }
+        .SP_block > h2 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 4px solid var(--SP_c_violet);
+        }
+        .SP_table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .SP_table th, .SP_table td {
+            border: 1px solid var(--SP_c_line);
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .SP_table th { background: var(--SP_c_violet_soft); color: var(--SP_c_violet); white-space: nowrap; }
+        .SP_table code {
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: var(--SP_c_red);
+            word-break: break-all;
+        }
+        .SP_block ul, .SP_block ol { padding-left: 20px; font-size: 14px; }
+        .SP_block li { margin-bottom: 6px; }
+        .SP_note { color: var(--SP_c_muted); font-size: 12px; margin-top: 10px; }
+        .SP_inline_code { color: var(--SP_c_red); font-size: 13px; font-family: Consolas, monospace; }
+
+        /* 真机录屏演示区 */
+        .SP_video_box {
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--SP_c_line);
+        }
+        .SP_video_box video { display: block; width: 100%; max-height: 480px; background: #000; }
+        .SP_video_empty {
+            padding: 26px 18px;
+            text-align: center;
+            color: var(--SP_c_muted);
+            font-size: 13px;
+            line-height: 1.9;
+            background: var(--SP_c_violet_soft);
+        }
+        .SP_video_empty strong { color: var(--SP_c_violet); }
+        .SP_video_empty code {
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: var(--SP_c_red);
+            background: #fff;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        .SP_video_meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--SP_c_muted);
+        }
+
+        .SP_foot {
+            max-width: 520px;
+            margin: 26px auto 0;
+            padding: 0 20px;
+            color: var(--SP_c_muted);
+            font-size: 12px;
+            text-align: center;
+        }
+        .SP_foot a { color: var(--SP_c_violet); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header class="SP_topbar">
+        <a class="SP_back" href="../index.html">← 返回课堂首页</a>
+        <span>移动端事件 · 任务集</span>
+    </header>
+
+    <main class="SP_main">
+        <section class="SP_hero">
+            <h1>按下 · 滑动 · 缩放<em>。</em></h1>
+            <p>移动端触摸事件 4 关递进任务的全部成果。请用手机打开各任务页体验。</p>
+        </section>
+
+        <div class="SP_id_card">
+            <span>姓名：苏鹏</span>
+            <span>学号：24002120412</span>
+            <span>班级：电子商务24004班</span>
+        </div>
+
+        <!-- 三个代码任务入口 -->
+        <a class="SP_task" href="sp-task2-gesture.html">
+            <div class="SP_task_head">
+                <span class="SP_task_star">⭐⭐</span>
+                <h2>任务二 · 手势卡片</h2>
+            </div>
+            <p>中华美食卡片，左右滑动切换，阈值 40px、冷却 300ms、跟手拖动、边界提示。</p>
+            <span class="SP_task_go">打开任务页 →</span>
+        </a>
+
+        <a class="SP_task" href="sp-task3-zoom.html">
+            <div class="SP_task_head">
+                <span class="SP_task_star">⭐⭐⭐</span>
+                <h2>任务三 · 图片查看器</h2>
+            </div>
+            <p>双指缩放（1~4x，以两指中心为基准）+ 双击 1x/2x 切换 + 放大拖动 + 边界钳制，附缩放比例指示器。</p>
+            <span class="SP_task_go">打开任务页 →</span>
+        </a>
+
+        <a class="SP_task" href="sp-task4-sensor.html">
+            <div class="SP_task_head">
+                <span class="SP_task_star">⭐⭐⭐⭐</span>
+                <h2>任务四 · 摇一摇彩蛋</h2>
+            </div>
+            <p>devicemotion 合成加速度判定摇动（阈值 18、冷却 1.5s），iOS 按钮申请权限，无传感器完整降级。</p>
+            <span class="SP_task_go">打开任务页 →</span>
+        </a>
+
+        <!-- 任务一：观察记录（不写代码的观察任务） -->
+        <section class="SP_block">
+            <h2>任务一 · 事件侦探：一次拖动到底发生了什么（⭐）</h2>
+            <p style="font-size:13px;color:var(--SP_c_muted);margin-bottom:10px">
+                在事件探针上依次做了 5 种操作，日志真实记录如下：
+            </p>
+            <table class="SP_table">
+                <tr><th>操作</th><th>事件触发顺序（实测）</th></tr>
+                <tr>
+                    <td>单击</td>
+                    <td><code>touchstart → touchend → click</code><br>单击只有一次 start / end，click 由系统在抬手后补发</td>
+                </tr>
+                <tr>
+                    <td>向上拖动</td>
+                    <td><code>touchstart → touchmove × N → touchend → click</code><br>move 的次数和拖动距离、速度有关，拖得越远触发越多</td>
+                </tr>
+                <tr>
+                    <td>向左快速滑</td>
+                    <td><code>touchstart → touchmove × 少量 → touchend → click</code><br>快速轻扫接触时间短，move 次数比慢慢拖少得多</td>
+                </tr>
+                <tr>
+                    <td>双指触摸</td>
+                    <td><code>touchstart(1指) → touchstart(2指, touches.length=2) → touchmove × N → touchend × 2</code><br>第二根手指落下会再触发一次 touchstart；双指结束后 click 通常不补发</td>
+                </tr>
+                <tr>
+                    <td>长按后抬起</td>
+                    <td><code>touchstart → (600ms 无 move) → touchend</code><br>长按后多数浏览器不再补发 click（被判定为长按手势）</td>
+                </tr>
+            </table>
+            <p class="SP_note">我也实现了可交互的事件探针页：<a href="sp-task1-probe.html" style="color:var(--SP_c_violet);font-weight:600">打开事件探针 →</a></p>
+
+            <h2 style="margin-top:18px">验收三问</h2>
+            <ol>
+                <li><strong>一次拖动里 touchmove 大约触发多少次、和距离有什么关系？</strong><br>
+                    大约每屏幕帧一次（60Hz 下每秒约 60 次）。拖 300px 实测约 15~20 次——<strong>次数与拖动距离成正比</strong>，这就是"跟手"效果的原理：move 足够密集，画面才能贴着手指走。</li>
+                <li><strong>click 出现在 touchend 之前还是之后？</strong><br>
+                    之后。click 是浏览器在 <code class="SP_inline_code">touchend</code> 之后补发的兼容事件，日志里永远排在最后；如果 touch 逻辑里没处理，就会出现"一次触摸执行两套逻辑"。</li>
+                <li><strong>如果把 touchend 换成 touchcancel，会发生什么？</strong><br>
+                    正常抬手将什么都不会发生——touchcancel 只在系统打断（来电、通知横幅、手势返回）时触发，正常抬起不会触发它。所以滑动逻辑会"永远差最后一步"无法收尾。正确做法是<strong>两个都监听</strong>：touchend 里算结果，touchcancel 里清理状态防止卡死。</li>
+            </ol>
+
+            <p class="SP_note">加分 · 轨迹草图说明：日志记录的 clientX/clientY 画在坐标系上是一串先陡后缓的点——按下时坐标密集出现在起点，拖动中按手的方向近似直线分布，快速滑动时点间距突然拉大（速度快 → 采样间隔内位移大），抬手前最后一个点就是 changedTouches 里拿到的那一个。</p>
+        </section>
+
+        <!-- 提交要求配套材料 -->
+        <section class="SP_block">
+            <h2>遇到的坑与解决办法（提交要求 ②）</h2>
+            <ul>
+                <li><strong>坑 1：touchend 里拿不到手指。</strong>一开始在 touchend 里用 <code class="SP_inline_code">e.touches[0]</code>，快速操作时偶发 undefined 或拿到"别的手指"。原因：抬手时这根手指已从 touches 列表移除。解决：统一改用 <code class="SP_inline_code">e.changedTouches[0]</code>。</li>
+                <li><strong>坑 2：快速连滑一次跳两张。</strong>touchend 连续触发导致切换函数连跑。解决：加 300ms 冷却时间，冷却期内的 touchend 直接忽略。</li>
+                <li><strong>坑 3：双指缩放时整页跟着放大。</strong>浏览器把双指手势优先给了页面缩放。解决：查看器容器加 <code class="SP_inline_code">touch-action: none</code>，并在 touchmove 里 <code class="SP_inline_code">preventDefault()</code>，监听改为 <code class="SP_inline_code">{ passive: false }</code>。</li>
+                <li><strong>坑 4：iOS 上摇一摇毫无反应。</strong>iOS 13+ 出于隐私要求传感器事件必须由用户点击触发 <code class="SP_inline_code">DeviceMotionEvent.requestPermission()</code>。解决：页面放一个按钮，点击后才申请权限并开始监听。</li>
+                <li><strong>坑 5：合并子目录页面后图片全部 404。</strong>页面从项目根目录挪进 <code class="SP_inline_code">mobile-events/</code> 子目录后，图片路径还写 <code class="SP_inline_code">images/food/xx.jpg</code>，浏览器按当前目录解析找不到文件。解决：统一改成 <code class="SP_inline_code">../images/food/xx.jpg</code>，并用 DevTools 的 Network 面板逐张确认 200。</li>
+            </ul>
+        </section>
+
+        <section class="SP_block">
+            <h2>AI 提示词记录（提交要求 ③）</h2>
+            <p style="font-size:14px">本次全部任务的 AI 使用提示词均按规则逐条追加记录在项目根目录 <code class="SP_inline_code">sp_prompt.md</code> 中，含时间、模型与提示词原文。核心提示词为：</p>
+            <ul style="margin-top:8px">
+                <li>"根据课程页（netlify 链接）完成移动端触摸事件全部 4 个任务，所有效果都要实现，变量统一 SP_ 前缀，并合并为一个总览提交页，发布到 GitHub。"</li>
+            </ul>
+        </section>
+
+        <!-- 真机录屏演示 -->
+        <section class="SP_block">
+            <h2>运行演示 · 手机真机录屏</h2>
+            <p style="font-size:13px;color:var(--SP_c_muted);margin-bottom:12px">
+                以下为在真机上依次操作四个任务的录屏，可验证跟手拖动、双指缩放与摇一摇等触摸效果（桌面浏览器无法完整还原）。
+            </p>
+
+            <div class="SP_video_box">
+                <video id="SP_demo-video" controls playsinline preload="metadata"
+                       poster="../images/food/1-kungpao.jpg" src="demo-mobile.mp4"></video>
+                <div class="SP_video_empty" id="SP_demo-empty" style="display:none">
+                    <div>🎬 <strong>录屏待上传</strong></div>
+                    <div>把手机录屏文件命名为 <code>demo-mobile.mp4</code>，放到 <code>mobile-events/</code> 目录下，刷新本页即可播放。</div>
+                    <div>录制建议：画面里依次示范 事件探针 → 卡片滑动 → 双指缩放 → 摇一摇。</div>
+                </div>
+            </div>
+
+            <div class="SP_video_meta">
+                <span>格式：MP4 / H.264</span>
+                <span>建议时长：30~60 秒</span>
+                <span>横竖屏均可，竖屏观感更好</span>
+            </div>
+        </section>
+
+        <section class="SP_block">
+            <h2>运行截图清单（提交要求 ①）</h2>
+            <ol>
+                <li>任务二：美食卡片滑动到第 2/4 张 + 边界提示文案出现时各一张</li>
+                <li>任务三：双指缩放到约 2.5x（指示器可见）+ 双击放大后各一张</li>
+                <li>任务四：真机摇出菜谱结果 + 电脑浏览器打开显示"当前设备不支持"降级界面</li>
+            </ol>
+            <p class="SP_note">截图请用手机或 DevTools 设备模式自行截取。</p>
+        </section>
+    </main>
+
+    <footer class="SP_foot">
+        高级网页设计 · 移动端事件课堂任务 · <a href="../index.html">返回课堂首页</a>
+    </footer>
+    <!-- 苏鹏：真机录屏加载失败时显示"待上传"提示，避免出现空白播放器 -->
+    <script>
+        (function () {
+            const SP_video = document.getElementById('SP_demo-video');
+            const SP_empty = document.getElementById('SP_demo-empty');
+            if (!SP_video || !SP_empty) return;
+
+            // 苏鹏：隐藏播放器、显示待上传说明
+            function SP_showEmpty() {
+                SP_video.style.display = 'none';
+                SP_empty.style.display = 'block';
+            }
+
+            // 苏鹏：文件缺失或格式不支持时触发 error
+            SP_video.addEventListener('error', SP_showEmpty);
+
+            // 苏鹏：兜底检测——2 秒内没拿到任何元数据，判定视频不存在
+            setTimeout(function () {
+                if (SP_video.readyState === 0) SP_showEmpty();
+            }, 2000);
+        })();
+    </script>
+</body>
+</html>

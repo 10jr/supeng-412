@@ -1,0 +1,294 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-18 14:30
+使用大模型: Trae AI
+功能名称: 任务二 · 手势卡片——中华美食卡片左右滑动切换
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务二 · 手势卡片 · 苏鹏</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #1a1a2e, #16213e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 24px 16px;
+    text-align: center;
+  }
+  h1 { font-size: 22px; margin-bottom: 6px; }
+  .SP_sub { font-size: 13px; color: #aaa; margin-bottom: 24px; }
+
+  /* 卡片容器 */
+  #SP_card-wrap {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-touch-callout: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 卡片轨道 */
+  #SP_track {
+    display: flex;
+    transition: transform 0.3s ease-out;
+  }
+
+  /* 单张卡片 */
+  .SP_card {
+    flex: 0 0 100%;
+    padding: 0 6px;
+  }
+  .SP_card-inner {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .SP_card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  .SP_card-body {
+    padding: 18px 16px;
+    text-align: left;
+    color: #222;
+  }
+  .SP_card-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e94560;
+    margin-bottom: 8px;
+  }
+  .SP_card-desc {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+  }
+  .SP_card-tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #e94560;
+    color: #fff;
+    font-size: 11px;
+  }
+
+  /* 页脚 */
+  .SP_footer {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #ccc;
+  }
+  .SP_footer strong { color: #e94560; font-size: 16px; }
+
+  /* 边界提示 */
+  .SP_hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(233,69,96,0.9);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 99;
+  }
+  .SP_hint.SP_show { opacity: 1; }
+
+  /* 指示器 */
+  .SP_dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .SP_dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #555;
+    transition: all 0.3s;
+  }
+  .SP_dot.SP_active {
+    background: #e94560;
+    width: 22px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>🍜 中华美食卡片</h1>
+  <p class="SP_sub">苏鹏 · 左右滑动切换 · 阈值 40px · 300ms 冷却</p>
+
+  <div id="SP_card-wrap">
+    <div id="SP_track">
+      <div class="SP_card" data-idx="0">
+        <div class="SP_card-inner">
+          <img src="../images/food/1-kungpao.jpg" alt="宫保鸡丁">
+          <div class="SP_card-body">
+            <div class="SP_card-title">宫保鸡丁</div>
+            <div class="SP_card-desc">麻辣鲜香，鸡肉嫩滑，花生酥脆，经典川菜代表，酸甜微辣入口难忘。</div>
+            <span class="SP_card-tag">川菜 · 招牌</span>
+          </div>
+        </div>
+      </div>
+      <div class="SP_card" data-idx="1">
+        <div class="SP_card-inner">
+          <img src="../images/food/2-mapotofu.jpg" alt="麻婆豆腐">
+          <div class="SP_card-body">
+            <div class="SP_card-title">麻婆豆腐</div>
+            <div class="SP_card-desc">麻辣鲜香烫嫩酥，七味俱全！豆腐嫩滑入味，花椒麻香霸道。</div>
+            <span class="SP_card-tag">川菜 · 下饭</span>
+          </div>
+        </div>
+      </div>
+      <div class="SP_card" data-idx="2">
+        <div class="SP_card-inner">
+          <img src="../images/food/3-sweetsour.jpg" alt="糖醋排骨">
+          <div class="SP_card-body">
+            <div class="SP_card-title">糖醋排骨</div>
+            <div class="SP_card-desc">外酥里嫩，酸甜可口，色泽红亮，老少皆宜的家常硬菜。</div>
+            <span class="SP_card-tag">家常菜 · 酸甜</span>
+          </div>
+        </div>
+      </div>
+      <div class="SP_card" data-idx="3">
+        <div class="SP_card-inner">
+          <img src="../images/food/4-yushiang.jpg" alt="鱼香肉丝">
+          <div class="SP_card-body">
+            <div class="SP_card-title">鱼香肉丝</div>
+            <div class="SP_card-desc">咸甜酸辣鲜，鱼香味浓，肉丝滑嫩，配菜爽口，下饭神器。</div>
+            <span class="SP_card-tag">川菜 · 经典</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="SP_dots" id="SP_dots"></div>
+
+  <div class="SP_footer">第 <strong id="SP_cur">1</strong> / 4 张</div>
+
+  <div class="SP_hint" id="SP_hint"></div>
+
+<script>
+  /* 作者: 苏鹏 | 功能: 手势卡片——左右滑动切换 */
+
+  const SP_wrap   = document.getElementById('SP_card-wrap');
+  const SP_track  = document.getElementById('SP_track');
+  const SP_hint   = document.getElementById('SP_hint');
+  const SP_cur    = document.getElementById('SP_cur');
+  const SP_dotsEl = document.getElementById('SP_dots');
+  const SP_cards  = SP_track.querySelectorAll('.SP_card');
+  const SP_TOTAL  = SP_cards.length;
+  let SP_idx      = 0;
+  let SP_lock     = false;  // 冷却锁
+  let SP_startX   = 0;
+  let SP_startY   = 0;
+  let SP_dragging = false;
+  let SP_offsetX  = 0;
+  const SP_THRESHOLD = 40;  // 阈值 40px
+
+  // 苏鹏：生成指示器
+  for (let i = 0; i < SP_TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'SP_dot' + (i === 0 ? ' SP_active' : '');
+    SP_dotsEl.appendChild(d);
+  }
+
+  // 苏鹏：切换到指定卡片
+  function SP_goto(idx) {
+    SP_idx = idx;
+    SP_track.style.transition = 'transform 0.3s ease-out';
+    SP_track.style.transform = `translateX(-${idx * 100}%)`;
+    SP_cur.textContent = idx + 1;
+    document.querySelectorAll('.SP_dot').forEach((d, i) => {
+      d.classList.toggle('SP_active', i === idx);
+    });
+  }
+
+  // 苏鹏：显示边界提示
+  function SP_showHint(msg) {
+    SP_hint.textContent = msg;
+    SP_hint.classList.add('SP_show');
+    clearTimeout(SP_showHint._t);
+    SP_showHint._t = setTimeout(() => SP_hint.classList.remove('SP_show'), 1200);
+  }
+
+  SP_wrap.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+    if (SP_lock) return;
+    SP_startX = e.touches[0].clientX;
+    SP_startY = e.touches[0].clientY;
+    SP_dragging = true;
+    SP_offsetX = 0;
+    SP_track.style.transition = 'none';
+  }, { passive: false });
+
+  SP_wrap.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+    if (!SP_dragging) return;
+    const dx = e.touches[0].clientX - SP_startX;
+    SP_offsetX = dx;
+    SP_track.style.transform = `translateX(calc(-${SP_idx * 100}% + ${dx}px))`;
+  }, { passive: false });
+
+  SP_wrap.addEventListener('touchend', function (e) {
+    e.preventDefault();
+    if (!SP_dragging) return;
+    SP_dragging = false;
+    SP_track.style.transition = 'transform 0.3s ease-out';
+
+    const dx = SP_offsetX;
+    const dy = (e.changedTouches[0].clientY - SP_startY);
+
+    // 苏鹏：判断是滑动还是上下滚（纵向位移大则忽略）
+    if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < SP_THRESHOLD) {
+      SP_goto(SP_idx);  // 回弹
+      return;
+    }
+
+    // 苏鹏：加冷却锁（300ms），防止快速连滑跳两张
+    SP_lock = true;
+    setTimeout(() => { SP_lock = false; }, 300);
+
+    if (dx < 0) {
+      // 左滑 → 下一张
+      if (SP_idx >= SP_TOTAL - 1) {
+        SP_showHint('已经是最后一张');
+        SP_goto(SP_idx);
+      } else {
+        SP_goto(SP_idx + 1);
+      }
+    } else {
+      // 右滑 → 上一张
+      if (SP_idx <= 0) {
+        SP_showHint('已经是第一张');
+        SP_goto(SP_idx);
+      } else {
+        SP_goto(SP_idx - 1);
+      }
+    }
+  }, { passive: false });
+
+  SP_wrap.addEventListener('touchcancel', function () {
+    SP_dragging = false;
+    SP_goto(SP_idx);
+  });
+</script>
+</body>
+</html>

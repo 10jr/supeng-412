@@ -1,0 +1,263 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-18 15:00
+使用大模型: Trae AI
+功能名称: 任务四 · 摇一摇彩蛋——devicemotion + 降级方案
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务四 · 摇一摇彩蛋 · 苏鹏</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #1a1a2e, #16213e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 30px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 { font-size: 24px; margin-bottom: 6px; }
+  .SP_sub { font-size: 13px; color: #aaa; margin-bottom: 30px; }
+
+  /* 摇一摇图标 */
+  #SP_shake-icon {
+    font-size: 80px;
+    margin: 40px 0 20px;
+    display: inline-block;
+    animation: SP_idle 2s ease-in-out infinite;
+  }
+  @keyframes SP_idle {
+    0%,100% { transform: rotate(-8deg); }
+    50%     { transform: rotate(8deg); }
+  }
+  #SP_shake-icon.SP_shaking {
+    animation: SP_shakeAnim 0.4s ease-in-out 3;
+  }
+  @keyframes SP_shakeAnim {
+    0%,100% { transform: translate(0,0) rotate(0); }
+    25% { transform: translate(-10px,5px) rotate(-15deg); }
+    50% { transform: translate(10px,-5px) rotate(15deg); }
+    75% { transform: translate(-5px,8px) rotate(-10deg); }
+  }
+
+  /* 结果卡片 */
+  #SP_result {
+    margin-top: 20px;
+    min-height: 140px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .SP_result-card {
+    background: linear-gradient(135deg, #e94560, #c73e54);
+    border-radius: 16px;
+    padding: 20px;
+    animation: SP_pop 0.4s ease-out;
+    box-shadow: 0 10px 30px rgba(233,69,96,0.4);
+  }
+  @keyframes SP_pop {
+    0%   { transform: scale(0.3); opacity: 0; }
+    70%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .SP_result-card h2 { font-size: 22px; margin-bottom: 6px; }
+  .SP_result-card p  { font-size: 13px; opacity: 0.9; line-height: 1.6; }
+
+  /* 降级按钮 */
+  #SP_btn-fallback {
+    margin-top: 24px;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 30px;
+    background: #e94560;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  #SP_btn-fallback:active { transform: scale(0.95); }
+
+  .SP_warn {
+    margin-top: 20px;
+    padding: 12px 18px;
+    background: rgba(233,69,96,0.2);
+    border: 1px solid #e94560;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #f5a0aa;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  /* iOS 权限按钮 */
+  #SP_btn-permission {
+    margin-top: 16px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 20px;
+    background: #60a5fa;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* 冷却遮罩 */
+  .SP_cooldown {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff;
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+  <h1>🎲 摇一摇 · 抽今日菜谱</h1>
+  <p class="SP_sub">苏鹏 · 摇手机或点按钮抽好运</p>
+
+  <div id="SP_shake-icon">🥢</div>
+
+  <div id="SP_result"></div>
+
+  <div id="SP_controls"></div>
+
+<script>
+  /* 作者: 苏鹏 | 功能: 摇一摇彩蛋 + 降级方案 */
+
+  // 苏鹏：今日菜谱池
+  const SP_DISHES = [
+    { name: '宫保鸡丁', tag: '麻辣 · 川菜', desc: '花生脆、鸡肉嫩、酸甜辣一口入魂' },
+    { name: '麻婆豆腐', tag: '麻辣 · 川菜', desc: '七味俱全的下饭神器，配两碗米饭才够' },
+    { name: '糖醋排骨', tag: '酸甜 · 家常', desc: '外酥里嫩，色泽红亮，老少皆宜' },
+    { name: '鱼香肉丝', tag: '鱼香 · 川菜', desc: '咸甜酸辣鲜，鱼香味浓，肉丝滑嫩' },
+    { name: '红烧肉',   tag: '肥而不腻',   desc: '入口即化的幸福，来两碗饭' },
+    { name: '番茄炒蛋', tag: '经典家常',   desc: '永远不会让人失望的组合' },
+    { name: '酸辣土豆丝', tag: '爽脆开胃', desc: '下饭一把手，酸辣解腻' },
+    { name: '清蒸鲈鱼', tag: '清淡健康', desc: '鲜美入口，适合减脂期' }
+  ];
+
+  const SP_result   = document.getElementById('SP_result');
+  const SP_controls = document.getElementById('SP_controls');
+  const SP_icon     = document.getElementById('SP_shake-icon');
+
+  // 苏鹏：摇动状态
+  let SP_shaking = false;
+  let SP_lastTime = 0;
+
+  // 苏鹏：阈值与冷却
+  const SP_THRESHOLD = 18;      // 加速度阈值
+  const SP_COOLDOWN  = 1500;    // 冷却 ms
+
+  // ==== 抽奖核心 ====
+  function SP_drawDish() {
+    if (SP_shaking) return;
+    SP_shaking = true;
+
+    SP_icon.classList.add('SP_shaking');
+    setTimeout(() => SP_icon.classList.remove('SP_shaking'), 1200);
+
+    const pick = SP_DISHES[Math.floor(Math.random() * SP_DISHES.length)];
+    SP_result.innerHTML = `
+      <div class="SP_result-card">
+        <h2>${pick.name}</h2>
+        <p>${pick.tag}</p>
+        <p style="margin-top:8px;font-size:12px;">${pick.desc}</p>
+      </div>
+    `;
+
+    // 冷却遮罩
+    const cd = document.createElement('div');
+    cd.className = 'SP_cooldown';
+    cd.textContent = '摇得太快了！稍等一下 🤫';
+    document.body.appendChild(cd);
+    setTimeout(() => cd.remove(), SP_COOLDOWN);
+    setTimeout(() => SP_shaking = false, SP_COOLDOWN);
+  }
+
+  // ==== 1. 摇一摇（Android 可用，iOS 13+ 需权限）====
+  function SP_setupMotion() {
+    // iOS 13+ 必须请求权限
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      SP_controls.innerHTML = `
+        <div class="SP_warn">📱 iOS 上需点击下方按钮授权传感器权限，否则摇一摇无法使用</div>
+        <button id="SP_btn-permission">🔓 授权传感器</button>
+        <button id="SP_btn-fallback">🎲 点我抽一次</button>
+      `;
+      document.getElementById('SP_btn-permission').addEventListener('click', function () {
+        DeviceOrientationEvent.requestPermission().then(res => {
+          if (res === 'granted') {
+            SP_startMotion();
+            SP_controls.innerHTML = `<div class="SP_warn" style="border-color:#4ade80;color:#90e0b8;">✅ 权限已授权，请摇手机！</div>`;
+          } else {
+            alert('权限被拒绝，可点"点我抽一次"');
+          }
+        }).catch(() => alert('权限请求失败'));
+      });
+      document.getElementById('SP_btn-fallback').addEventListener('click', SP_drawDish);
+    } else if (typeof window.DeviceMotionEvent !== 'undefined') {
+      // Android 直接启用
+      SP_controls.innerHTML = `<div class="SP_warn" style="border-color:#4ade80;color:#90e0b8;">✅ 传感器已就绪，请摇手机！</div>
+        <button id="SP_btn-fallback" style="margin-top:16px;">🎲 点我抽一次</button>`;
+      SP_startMotion();
+      document.getElementById('SP_btn-fallback').addEventListener('click', SP_drawDish);
+    } else {
+      // 无传感器 → 纯降级
+      SP_showFallback();
+    }
+  }
+
+  // 苏鹏：监听 devicemotion 计算合成加速度
+  function SP_startMotion() {
+    window.addEventListener('devicemotion', function (SP_e) {
+      const acc = SP_e.accelerationIncludingGravity;
+      if (!acc) return;
+
+      // 合成加速度 = √(x² + y² + z²)
+      const magnitude = Math.hypot(acc.x || 0, acc.y || 0, acc.z || 0);
+
+      if (magnitude > SP_THRESHOLD) {
+        const now = Date.now();
+        if (now - SP_lastTime > SP_COOLDOWN) {
+          SP_lastTime = now;
+          SP_drawDish();
+        }
+      }
+    });
+  }
+
+  // 苏鹏：纯降级——点按钮抽
+  function SP_showFallback() {
+    SP_controls.innerHTML = `
+      <div class="SP_warn">
+        当前设备不支持加速度传感器，无法摇一摇。<br>
+        👉 点下方按钮同样可以抽菜谱！
+      </div>
+      <button id="SP_btn-fallback">🎲 点我抽一次</button>
+    `;
+    document.getElementById('SP_btn-fallback').addEventListener('click', SP_drawDish);
+  }
+
+  // ==== 启动 ====
+  // 苏鹏：说明——为什么要做降级？因为 devicemotion 在桌面浏览器根本不存在，
+  // 而且 iOS 13+ 还需要主动请求权限。如果不做降级，用户打开页面就是一片空白。
+  window.addEventListener('load', function () {
+    setTimeout(SP_setupMotion, 300);
+  });
+</script>
+</body>
+</html>
