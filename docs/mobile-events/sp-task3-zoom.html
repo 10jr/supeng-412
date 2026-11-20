@@ -1,0 +1,257 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-18 14:45
+使用大模型: Trae AI
+功能名称: 任务三 · 图片查看器——双指缩放 + 双击放大 + 拖动
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务三 · 图片查看器 · 苏鹏</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: "Microsoft YaHei", sans-serif;
+    background: #111;
+    color: #fff;
+    height: 100%;
+    overflow: hidden;
+  }
+  h1 {
+    padding: 14px 16px;
+    font-size: 17px;
+    background: #0d0d0d;
+    border-bottom: 1px solid #222;
+  }
+  .SP_tip {
+    position: fixed;
+    top: 60px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(233,69,96,0.9);
+    color: #fff; padding: 8px 20px; border-radius: 20px;
+    font-size: 13px; z-index: 100;
+    animation: SP_fadeTip 3s forwards;
+    pointer-events: none;
+  }
+  @keyframes SP_fadeTip {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .SP_hud {
+    position: fixed; bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    padding: 8px 20px; border-radius: 20px;
+    font-size: 13px; color: #ddd; z-index: 99;
+  }
+  .SP_hud strong { color: #e94560; }
+
+  /* 查看器容器 */
+  #SP_viewer {
+    width: 100%; height: calc(100% - 52px);
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: zoom-in;
+  }
+
+  /* 图片元素 */
+  #SP_img {
+    max-width: 100%;
+    max-height: 100%;
+    transform-origin: 0 0;  /* 固定原点方便用 translate 定位 */
+    transition: transform 0.25s ease-out;
+    will-change: transform;
+  }
+</style>
+</head>
+<body>
+
+  <h1>🔍 图片查看器 · 苏鹏</h1>
+  <div class="SP_tip">双指缩放请用手机打开 · 双击切换 1× / 2×</div>
+  <div class="SP_hud">缩放: <strong id="SP_scale-show">1.00×</strong></div>
+
+  <div id="SP_viewer">
+    <img id="SP_img" src="../images/food/1-kungpao.jpg" alt="查看器测试图">
+  </div>
+
+<script>
+  /* 作者: 苏鹏 | 功能: 双指缩放 + 双击 + 拖动的图片查看器 */
+
+  const SP_viewer = document.getElementById('SP_viewer');
+  const SP_img    = document.getElementById('SP_img');
+  const SP_scaleShow = document.getElementById('SP_scale-show');
+
+  // 苏鹏：状态变量
+  let SP_scale     = 1;       // 当前缩放倍数
+  const SP_MIN_S   = 1;       // 最小
+  const SP_MAX_S   = 4;       // 最大
+  let SP_tx        = 0;       // 横向平移
+  let SP_ty        = 0;       // 纵向平移
+  let SP_dragging  = false;
+  let SP_pinching  = false;
+  let SP_startX    = 0, SP_startY = 0;
+  let SP_startTx   = 0, SP_startTy = 0;
+  let SP_startDist = 0;       // 双指初始距离
+  let SP_startScale = 1;
+  let SP_lastTap   = 0;       // 双击计时
+  let SP_pinchCx   = 0, SP_pinchCy = 0;  // 双指中心
+
+  // 苏鹏：更新图片变换
+  function SP_applyTransform() {
+    SP_img.style.transform = `translate(${SP_tx}px, ${SP_ty}px) scale(${SP_scale})`;
+    SP_scaleShow.textContent = SP_scale.toFixed(2) + '×';
+  }
+
+  // 苏鹏：限制拖动边界（缩小时不能拖出）
+  function SP_clampPan() {
+    const vw = SP_viewer.clientWidth;
+    const vh = SP_viewer.clientHeight;
+    const iw = SP_img.clientWidth  * SP_scale;
+    const ih = SP_img.clientHeight * SP_scale;
+    const minX = Math.min(0, vw - iw);
+    const minY = Math.min(0, vh - ih);
+    SP_tx = Math.max(minX, Math.min(0, SP_tx));
+    SP_ty = Math.max(minY, Math.min(0, SP_ty));
+  }
+
+  // 苏鹏：计算两点距离
+  function SP_dist(t1, t2) {
+    return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+  }
+
+  // 苏鹏：计算两指中心（相对图片原点的偏移）
+  function SP_centerOf(t1, t2) {
+    return {
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2
+    };
+  }
+
+  // 苏鹏：抬手/取消时如果回到 1x 则自动居中
+  function SP_resetIf1x() {
+    if (SP_scale <= 1) {
+      SP_scale = 1;
+      SP_tx = 0; SP_ty = 0;
+    } else {
+      SP_clampPan();
+    }
+  }
+
+  // ==== touchstart ====
+  SP_viewer.addEventListener('touchstart', function (SP_e) {
+    SP_e.preventDefault();
+    if (SP_e.touches.length === 1) {
+      // 单指：准备拖动 / 双击检测
+      SP_dragging = true;
+      SP_pinching = false;
+      SP_startX = SP_e.touches[0].clientX;
+      SP_startY = SP_e.touches[0].clientY;
+      SP_startTx = SP_tx;
+      SP_startTy = SP_ty;
+      SP_img.style.transition = 'none';
+
+      // 双击：两次点击间隔 < 300ms 切换 1x/2x
+      const now = Date.now();
+      if (now - SP_lastTap < 300) {
+        SP_lastTap = 0;
+        SP_scale = (SP_scale > 1.2) ? 1 : 2;
+        SP_tx = 0; SP_ty = 0;
+        SP_img.style.transition = 'transform 0.25s ease-out';
+        SP_applyTransform();
+      } else {
+        SP_lastTap = now;
+      }
+    } else if (SP_e.touches.length === 2) {
+      // 双指：开始缩放
+      SP_pinching = true;
+      SP_dragging = false;
+      SP_startDist = SP_dist(SP_e.touches[0], SP_e.touches[1]);
+      SP_startScale = SP_scale;
+      SP_img.style.transition = 'none';
+      const c = SP_centerOf(SP_e.touches[0], SP_e.touches[1]);
+      SP_pinchCx = c.x; SP_pinchCy = c.y;
+    }
+  }, { passive: false });
+
+  // ==== touchmove ====
+  SP_viewer.addEventListener('touchmove', function (SP_e) {
+    SP_e.preventDefault();
+    if (SP_pinching && SP_e.touches.length >= 2) {
+      // 苏鹏：双指缩放，以两指中心为基准
+      const d = SP_dist(SP_e.touches[0], SP_e.touches[1]);
+      if (SP_startDist > 0) {
+        let ratio = d / SP_startDist;
+        let newScale = SP_startScale * ratio;
+        newScale = Math.max(SP_MIN_S, Math.min(SP_MAX_S, newScale));
+
+        // 苏鹏：保证缩放中心在两指之间——通过平移补偿
+        const c = SP_centerOf(SP_e.touches[0], SP_e.touches[1]);
+        // 补偿量：新中心相对图片原点的变化
+        const dv = SP_viewer.getBoundingClientRect();
+        const localCx = c.x - dv.left;
+        const localCy = c.y - dv.top;
+        // 图片当前可见中心相对原点 = (localCx - tx) / scale
+        const imgLocalX = (localCx - SP_tx) / SP_scale;
+        const imgLocalY = (localCy - SP_ty) / SP_scale;
+        // 新 tx/ty 让图片原点对齐到: localCx - imgLocalX * newScale
+        SP_tx = localCx - imgLocalX * newScale;
+        SP_ty = localCy - imgLocalY * newScale;
+
+        SP_scale = newScale;
+        SP_clampPan();
+        SP_applyTransform();
+      }
+    } else if (SP_dragging && SP_e.touches.length === 1 && SP_scale > 1) {
+      // 苏鹏：放大后单指拖动
+      const dx = SP_e.touches[0].clientX - SP_startX;
+      const dy = SP_e.touches[0].clientY - SP_startY;
+      SP_tx = SP_startTx + dx;
+      SP_ty = SP_startTy + dy;
+      SP_clampPan();
+      SP_applyTransform();
+    }
+  }, { passive: false });
+
+  // ==== touchend ====
+  SP_viewer.addEventListener('touchend', function (SP_e) {
+    SP_e.preventDefault();
+    SP_dragging = false;
+    SP_pinching = false;
+    SP_startDist = 0;
+    SP_img.style.transition = 'transform 0.25s ease-out';
+    SP_resetIf1x();
+    SP_applyTransform();
+  }, { passive: false });
+
+  SP_viewer.addEventListener('touchcancel', function (SP_e) {
+    SP_e.preventDefault();
+    SP_dragging = false;
+    SP_pinching = false;
+    SP_startDist = 0;
+    SP_resetIf1x();
+    SP_applyTransform();
+  }, { passive: false });
+
+  // 苏鹏：屏幕方向变化时重置（缩放后旋转不丢失 → 其实旋转后窗口尺寸变了，重置更合理）
+  window.addEventListener('orientationchange', function () {
+    setTimeout(function () {
+      SP_scale = 1; SP_tx = 0; SP_ty = 0;
+      SP_applyTransform();
+    }, 200);
+  });
+
+  // 初始应用
+  SP_applyTransform();
+</script>
+</body>
+</html>
