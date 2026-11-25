@@ -1,0 +1,352 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-23 22:35
+使用大模型: DeepSeek-V4.1-Flash
+功能名称: Swiper 任务二 · creative 电影墙（第 7 种切换效果）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务二 · creative 电影墙 | 大国重器光影展</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<style>
+  :root{
+    --sp_bg:#0a1120;
+    --sp_panel:#111c2f;
+    --sp_line:rgba(255,255,255,.08);
+    --sp_txt:#e9eef8;
+    --sp_sub:#9aabc4;
+    --sp_gold:#f2c45a;
+    --sp_cyan:#5fd0ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    background:radial-gradient(1100px 520px at 20% -12%,#1b2f52 0%,transparent 58%),var(--sp_bg);
+    color:var(--sp_txt);min-height:100vh;padding:0 0 64px;
+  }
+  .sp_top{max-width:1000px;margin:0 auto;padding:28px 20px 0}
+  .sp_back{font-size:13px;color:var(--sp_sub);text-decoration:none}
+  .sp_back:hover{color:var(--sp_gold)}
+  .sp_wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+  .sp_badge{
+    display:inline-block;margin-top:22px;font-size:12px;letter-spacing:2px;
+    color:var(--sp_gold);border:1px solid rgba(242,196,90,.45);
+    padding:6px 12px;border-radius:999px;
+  }
+  h1{font-size:32px;margin-top:16px}
+  .sp_lead{color:var(--sp_sub);font-size:14.5px;line-height:1.9;margin-top:12px;max-width:720px}
+
+  .sp_bar{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;
+  }
+  .sp_btn{
+    cursor:pointer;font-family:inherit;font-size:12.5px;
+    color:var(--sp_sub);background:rgba(255,255,255,.03);
+    border:1px solid var(--sp_line);border-radius:999px;
+    padding:8px 15px;transition:all .2s ease;
+  }
+  .sp_btn:hover{color:var(--sp_txt);border-color:rgba(255,255,255,.22)}
+  .sp_btn.sp_on{
+    color:#111c2f;background:var(--sp_gold);border-color:var(--sp_gold);font-weight:600;
+  }
+  .sp_btn.sp_new{position:relative}
+  .sp_btn.sp_new::after{
+    content:"NEW";position:absolute;top:-7px;right:-4px;
+    font-size:9px;letter-spacing:.5px;color:#111c2f;background:var(--sp_cyan);
+    padding:1px 5px;border-radius:4px;font-weight:700;
+  }
+
+  .sp_stage{
+    margin-top:18px;border:1px solid var(--sp_line);border-radius:18px;
+    background:#060b14;overflow:hidden;
+  }
+  .swiper{width:100%;height:400px}
+  .sp_slide{position:relative;overflow:hidden;border-radius:6px}
+  .sp_slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .sp_cap{
+    position:absolute;left:0;right:0;bottom:0;padding:28px 24px 22px;
+    background:linear-gradient(to top,rgba(4,8,16,.94),rgba(4,8,16,0));
+  }
+  .sp_cap h3{font-size:19px}
+  .sp_cap p{font-size:13px;color:#c7d4e6;margin-top:6px}
+  .swiper-pagination-bullet{background:#fff;opacity:.4}
+  .swiper-pagination-bullet-active{background:var(--sp_gold);opacity:1}
+  .swiper-button-next,.swiper-button-prev{color:var(--sp_gold)}
+  .swiper-button-next::after,.swiper-button-prev::after{font-size:22px}
+
+  .sp_note{
+    margin-top:16px;display:flex;gap:12px;align-items:flex-start;
+    font-size:13px;color:var(--sp_sub);line-height:1.85;
+    background:var(--sp_panel);border:1px solid var(--sp_line);
+    border-radius:12px;padding:14px 18px;
+  }
+  .sp_note b{color:var(--sp_gold);flex:0 0 auto}
+
+  .sp_sec{margin-top:44px}
+  .sp_sec > h2{font-size:20px;display:flex;align-items:center;gap:10px}
+  .sp_sec > h2 span{
+    font-size:11.5px;color:var(--sp_gold);border:1px solid rgba(242,196,90,.4);
+    padding:3px 8px;border-radius:6px;font-weight:400;
+  }
+  pre{
+    background:var(--sp_panel);border:1px solid var(--sp_line);border-radius:12px;
+    padding:18px 20px;overflow-x:auto;margin-top:16px;
+  }
+  code{font-family:Consolas,Monaco,monospace;font-size:12.8px;line-height:1.8;color:#cfe0f5}
+  .sp_kw{color:#f2c45a}
+  .sp_str{color:#9ae6b4}
+  .sp_num{color:#7dd3fc}
+  .sp_cm{color:#5c7189}
+
+  .sp_two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .sp_card{
+    background:var(--sp_panel);border:1px solid var(--sp_line);
+    border-radius:12px;padding:18px 20px;
+  }
+  .sp_card h3{font-size:14.5px;color:var(--sp_gold)}
+  .sp_card p{font-size:13px;color:var(--sp_sub);line-height:1.85;margin-top:8px}
+  .sp_card ul{margin:10px 0 0 18px;font-size:13px;color:var(--sp_sub);line-height:1.9}
+
+  .sp_faq{display:grid;gap:12px;margin-top:18px}
+  .sp_faq details{
+    background:var(--sp_panel);border:1px solid var(--sp_line);
+    border-radius:12px;padding:14px 18px;
+  }
+  .sp_faq summary{cursor:pointer;font-size:14px}
+  .sp_faq p{font-size:13px;color:var(--sp_sub);line-height:1.85;margin-top:10px}
+
+  @media (max-width:720px){
+    .swiper{height:270px}
+    .sp_two{grid-template-columns:1fr}
+    h1{font-size:25px}
+  }
+</style>
+</head>
+<body>
+
+<div class="sp_top">
+  <a class="sp_back" href="index.html">← 返回三关任务</a>
+</div>
+
+<div class="sp_wrap">
+
+  <div class="sp_badge">任务二 · ⭐⭐⭐ creative 仿写</div>
+  <h1>第 7 种效果：<span style="color:var(--sp-gold,#f2c45a)">creative 电影墙</span></h1>
+  <p class="sp_lead">
+    课堂只讲了 6 种 effect，Swiper 其实还有第 7 种 <code>creative</code>——它不预设动画，
+    由你通过 <code>creativeEffect</code> 自己定义「上一张」「下一张」的位置、角度、缩放。
+    点下面的按钮，第 7 个就是新增的「creative 电影墙」。
+  </p>
+
+  <div class="sp_bar" id="sp_bar">
+    <button class="sp_btn sp_on" data-sp-effect="slide">slide 平推</button>
+    <button class="sp_btn" data-sp-effect="fade">fade 淡入</button>
+    <button class="sp_btn" data-sp-effect="cube">cube 立方</button>
+    <button class="sp_btn" data-sp-effect="coverflow">coverflow 画廊</button>
+    <button class="sp_btn" data-sp-effect="flip">flip 翻页</button>
+    <button class="sp_btn" data-sp-effect="cards">cards 卡片</button>
+    <button class="sp_btn sp_new" data-sp-effect="creative">creative 电影墙</button>
+  </div>
+
+  <div class="sp_stage">
+    <div class="swiper" id="spSwEff">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide sp_slide">
+          <img src="images/tiangong.jpg" alt="天宫空间站">
+          <div class="sp_cap"><h3>天宫空间站</h3><p>同一组照片，七种讲述方式</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/fuxing.jpg" alt="复兴号动车组">
+          <div class="sp_cap"><h3>复兴号动车组</h3><p>电影选片墙：看过的退到左侧变小</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/c919.jpg" alt="C919 大飞机">
+          <div class="sp_cap"><h3>C919 大飞机</h3><p>下一张从右侧放大推进场</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/fendouzhe.jpg" alt="奋斗者号">
+          <div class="sp_cap"><h3>奋斗者号</h3><p>拖动或点箭头切换</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/fast.jpg" alt="中国天眼 FAST">
+          <div class="sp_cap"><h3>中国天眼 FAST</h3><p>percent 相对 slide 自身宽高</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/adora.jpg" alt="爱达·魔都号">
+          <div class="sp_cap"><h3>爱达·魔都号</h3><p>首艘国产大型邮轮 · 2024.01 首航</p></div>
+        </div>
+      </div>
+      <div class="swiper-pagination" id="spPagEff"></div>
+      <div class="swiper-button-prev" id="spPrevEff"></div>
+      <div class="swiper-button-next" id="spNextEff"></div>
+    </div>
+  </div>
+
+  <div class="sp_note">
+    <b>当前效果</b>
+    <span id="sp_now">slide —— 默认平推，最稳重的选择。点上面任何一个按钮可实时切换。</span>
+  </div>
+
+  <div class="sp_sec">
+    <h2>creative 的核心配置 <span>任务二代码</span></h2>
+<pre><code><span class="sp_kw">new</span> Swiper(<span class="sp_str">'#spSwEff'</span>, {
+  loop: <span class="sp_kw">true</span>,
+  effect: <span class="sp_str">'creative'</span>,
+  speed: <span class="sp_num">700</span>,
+  creativeEffect: {
+    <span class="sp_cm">// prev：已经滑过去的那一张 —— 缩小、左移、带一点角度</span>
+    prev: {
+      translate: [<span class="sp_str">'-30%'</span>, <span class="sp_num">0</span>, <span class="sp_num">-500</span>],
+      rotate: [<span class="sp_num">0</span>, <span class="sp_num">0</span>, <span class="sp_num">-12</span>],
+      scale: <span class="sp_num">0.85</span>,
+      opacity: <span class="sp_num">0.45</span>,
+      shadow: <span class="sp_kw">true</span>
+    },
+    <span class="sp_cm">// next：还没进来的那一张 —— 从右侧放大推进场</span>
+    next: {
+      translate: [<span class="sp_str">'110%'</span>, <span class="sp_num">0</span>, <span class="sp_num">120</span>],
+      rotate: [<span class="sp_num">0</span>, <span class="sp_num">0</span>, <span class="sp_num">4</span>],
+      scale: <span class="sp_num">1.04</span>,
+      opacity: <span class="sp_num">1</span>
+    }
+  },
+  autoplay: { delay: <span class="sp_num">3200</span>, disableOnInteraction: <span class="sp_kw">false</span> },
+  pagination: { el: <span class="sp_str">'#spPagEff'</span>, clickable: <span class="sp_kw">true</span> },
+  navigation: { nextEl: <span class="sp_str">'#spNextEff'</span>, prevEl: <span class="sp_str">'#spPrevEff'</span> }
+});</code></pre>
+  </div>
+
+  <div class="sp_sec">
+    <h2>我的理解 <span>用自己的话写下</span></h2>
+    <div class="sp_two">
+      <div class="sp_card">
+        <h3>prev 的 transform 控制什么？</h3>
+        <p>控制「已经看过的上一张」去哪、变成什么样。我让它<b>向左平移 30%、往画面深处退 500px、
+        缩小到 0.85、左倾 12 度、半透明</b>——像电影选片墙里被推到侧边、稍微失焦的旧海报。</p>
+      </div>
+      <div class="sp_card">
+        <h3>next 的 transform 控制什么？</h3>
+        <p>控制「即将进场的那一张」从哪来、怎么来。我让它<b>从右侧 110% 处、放大 1.04 倍、
+        微微右倾 4 度推进来</b>——像新海报被推到眼前，主角感更强。</p>
+      </div>
+    </div>
+    <div class="sp_two">
+      <div class="sp_card">
+        <h3>translate 的数组是什么顺序？</h3>
+        <ul>
+          <li>第 1 位：X 轴（左右）</li>
+          <li>第 2 位：Y 轴（上下）</li>
+          <li>第 3 位：Z 轴（远近，负值后退）</li>
+        </ul>
+      </div>
+      <div class="sp_card">
+        <h3>百分号相对谁？</h3>
+        <p>相对 <b>slide 自己</b>的宽高，不是容器。<code>'-30%'</code> 表示往左挪自身宽度的 30%，
+        所以换图片尺寸时位置关系依然成立，不用改数字。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sp_sec">
+    <h2>答辩抽问 <span>能现场改才算会</span></h2>
+    <div class="sp_faq">
+      <details>
+        <summary>transform 里的百分号是相对谁的？</summary>
+        <p>相对 slide 自身的宽高。改容器宽度时，-30% 仍是自身宽度的 30%，比例不变。</p>
+      </details>
+      <details>
+        <summary>改一个数值让卡片转 20 度，怎么改？</summary>
+        <p>把 prev 的 <code>rotate: [0, 0, -12]</code> 改成 <code>rotate: [0, 0, -20]</code>
+        （或 next 的 4 改成 20）。第三个值是 Z 轴旋转，也就是平面内的顺时针/逆时针转，负值向左倾。</p>
+      </details>
+      <details>
+        <summary>为什么切换效果时要销毁重建实例？</summary>
+        <p>effect 及其配套参数（cubeEffect / coverflowEffect / creativeEffect）只在初始化时读取，
+        运行中直接改 params 不会重建对应样式。所以本页用 destroy(true, true) 后重新 new，最稳。</p>
+      </details>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  // 苏鹏：各效果的说明文案，切换时同步显示在下方提示条
+  const sp_effectText = {
+    slide: 'slide —— 默认平推，最稳重的选择。点上面任何一个按钮可实时切换。',
+    fade: 'fade —— 淡入淡出，企业官网最常见的优雅做法。',
+    cube: 'cube —— 3D 立方体，适合炫酷的产品发布页。',
+    coverflow: 'coverflow —— 画廊堆叠，相册类页面很吃这一套。',
+    flip: 'flip —— 翻页效果，有种纸质画册的复古感。',
+    cards: 'cards —— 卡片堆叠，年轻化、俏皮。',
+    creative: 'creative —— 自定义变换：上一张缩小左移带角度，下一张放大右移进场，像电影选片墙。'
+  };
+
+  // 苏鹏：各效果对应的额外参数，避免切换时残留上一个效果的配置
+  const sp_effectParams = {
+    slide: {},
+    fade: { fadeEffect: { crossFade: true } },
+    cube: { cubeEffect: { shadow: true, slideShadows: true } },
+    coverflow: { coverflowEffect: { rotate: 30, stretch: 0, depth: 160, modifier: 1, slideShadows: false } },
+    flip: { flipEffect: { slideShadows: true, limitRotation: true } },
+    cards: { cardsEffect: { perSlideOffset: 8, perSlideRotate: 3, rotate: true, slideShadows: false } },
+    creative: {
+      creativeEffect: {
+        prev: {
+          translate: ['-30%', 0, -500],
+          rotate: [0, 0, -12],
+          scale: 0.85,
+          opacity: 0.45,
+          shadow: true
+        },
+        next: {
+          translate: ['110%', 0, 120],
+          rotate: [0, 0, 4],
+          scale: 1.04,
+          opacity: 1
+        }
+      }
+    }
+  };
+
+  let sp_swiperEff = null;
+
+  // 苏鹏：按指定效果重建轮播实例（effect 只能在初始化时生效，所以要销毁重建）
+  function sp_buildSwiper(sp_effect) {
+    if (sp_swiperEff) {
+      sp_swiperEff.destroy(true, true);
+      sp_swiperEff = null;
+    }
+    sp_swiperEff = new Swiper('#spSwEff', Object.assign({
+      loop: true,
+      effect: sp_effect,
+      speed: 700,
+      grabCursor: true,
+      autoplay: { delay: 3200, disableOnInteraction: false },
+      pagination: { el: '#spPagEff', clickable: true },
+      navigation: { nextEl: '#spNextEff', prevEl: '#spPrevEff' }
+    }, sp_effectParams[sp_effect]));
+  }
+
+  // 苏鹏：绑定按钮点击，切换效果并高亮当前按钮
+  function sp_bindButtons() {
+    const sp_btns = document.querySelectorAll('.sp_btn');
+    sp_btns.forEach(function (sp_btn) {
+      sp_btn.addEventListener('click', function () {
+        sp_btns.forEach(function (sp_other) { sp_other.classList.remove('sp_on'); });
+        sp_btn.classList.add('sp_on');
+        const sp_effect = sp_btn.dataset.spEffect;
+        sp_buildSwiper(sp_effect);
+        document.getElementById('sp_now').textContent = sp_effectText[sp_effect];
+      });
+    });
+  }
+
+  sp_buildSwiper('slide');
+  sp_bindButtons();
+</script>
+</body>
+</html>
