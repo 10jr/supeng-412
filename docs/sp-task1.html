@@ -1,0 +1,335 @@
+<!--
+作者: 苏鹏
+建立时间: 2026-11-23 22:20
+使用大模型: DeepSeek-V4.1-Flash
+功能名称: Swiper 任务一 · 提示词工程师（两轮提示词生成 #spSw4 配置并验证）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务一 · 提示词工程师 | 大国重器光影展</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<style>
+  :root{
+    --sp_bg:#0a1120;
+    --sp_panel:#111c2f;
+    --sp_line:rgba(255,255,255,.08);
+    --sp_txt:#e9eef8;
+    --sp_sub:#9aabc4;
+    --sp_gold:#f2c45a;
+    --sp_cyan:#5fd0ff;
+    --sp_green:#4ade80;
+    --sp_red:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    background:radial-gradient(1100px 520px at 80% -10%,#1b2f52 0%,transparent 58%),var(--sp_bg);
+    color:var(--sp_txt);min-height:100vh;padding:0 0 64px;
+  }
+  .sp_top{
+    max-width:1000px;margin:0 auto;padding:28px 20px 0;
+  }
+  .sp_back{font-size:13px;color:var(--sp_sub);text-decoration:none}
+  .sp_back:hover{color:var(--sp_gold)}
+  .sp_wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+  .sp_badge{
+    display:inline-block;margin-top:22px;font-size:12px;letter-spacing:2px;
+    color:var(--sp_gold);border:1px solid rgba(242,196,90,.45);
+    padding:6px 12px;border-radius:999px;
+  }
+  h1{font-size:32px;margin-top:16px;letter-spacing:.5px}
+  .sp_lead{color:var(--sp_sub);font-size:14.5px;line-height:1.9;margin-top:12px;max-width:700px}
+
+  .sp_demo{
+    margin-top:30px;border:1px solid var(--sp_line);border-radius:18px;
+    background:var(--sp_panel);overflow:hidden;
+  }
+  .sp_demo_head{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:14px 18px;border-bottom:1px solid var(--sp_line);
+    font-size:13px;color:var(--sp_sub);
+  }
+  .sp_demo_head b{color:var(--sp_txt);font-size:13.5px;font-weight:600}
+  .sp_live{
+    font-size:11.5px;color:var(--sp_green);
+    border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.08);
+    padding:3px 9px;border-radius:999px;
+  }
+  .swiper{width:100%;height:360px;background:#060b14}
+  .sp_slide{position:relative;overflow:hidden}
+  .sp_slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .sp_cap{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:26px 24px 22px;
+    background:linear-gradient(to top,rgba(4,8,16,.92),rgba(4,8,16,0));
+  }
+  .sp_cap h3{font-size:19px;letter-spacing:.5px}
+  .sp_cap p{font-size:13px;color:#c7d4e6;margin-top:6px}
+  .swiper-pagination-bullet{background:#fff;opacity:.45}
+  .swiper-pagination-bullet-active{background:var(--sp_gold);opacity:1;width:18px;border-radius:6px}
+  .sp_pag{padding-bottom:8px !important}
+
+  .sp_sec{margin-top:44px}
+  .sp_sec > h2{
+    font-size:20px;display:flex;align-items:center;gap:10px;
+  }
+  .sp_sec > h2 span{
+    font-size:11.5px;color:var(--sp_gold);border:1px solid rgba(242,196,90,.4);
+    padding:3px 8px;border-radius:6px;font-weight:400;letter-spacing:1px;
+  }
+  .sp_grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .sp_req{
+    background:var(--sp_panel);border:1px solid var(--sp_line);
+    border-radius:12px;padding:16px 18px;
+  }
+  .sp_req b{font-size:14px;color:var(--sp_gold)}
+  .sp_req p{font-size:13px;color:var(--sp_sub);line-height:1.8;margin-top:6px}
+
+  .sp_round{
+    background:var(--sp_panel);border:1px solid var(--sp_line);
+    border-radius:14px;padding:20px 22px;margin-top:16px;
+  }
+  .sp_round h3{font-size:15px;display:flex;align-items:center;gap:10px}
+  .sp_round h3 i{
+    font-style:normal;font-size:11.5px;padding:3px 9px;border-radius:6px;
+    background:rgba(95,208,255,.12);color:var(--sp_cyan);border:1px solid rgba(95,208,255,.3);
+  }
+  .sp_round h3 em{
+    font-style:normal;font-size:11.5px;padding:3px 9px;border-radius:6px;
+    background:rgba(248,113,113,.1);color:var(--sp_red);border:1px solid rgba(248,113,113,.3);
+    margin-left:auto;
+  }
+  .sp_round h3 em.sp_ok{
+    background:rgba(74,222,128,.1);color:var(--sp_green);border-color:rgba(74,222,128,.3);
+  }
+  .sp_label{font-size:12px;color:#7d8ea6;letter-spacing:1px;margin:16px 0 8px}
+  .sp_quote{
+    border-left:2px solid var(--sp_gold);background:rgba(242,196,90,.06);
+    padding:12px 16px;border-radius:0 8px 8px 0;
+    font-size:13.5px;line-height:1.9;color:#dfe7f3;
+  }
+  pre{
+    background:#060b14;border:1px solid var(--sp_line);border-radius:10px;
+    padding:16px 18px;overflow-x:auto;margin-top:8px;
+  }
+  code{font-family:Consolas,Monaco,monospace;font-size:12.8px;line-height:1.75;color:#cfe0f5}
+  .sp_kw{color:#f2c45a}
+  .sp_str{color:#9ae6b4}
+  .sp_cm{color:#5c7189}
+
+  table{width:100%;border-collapse:collapse;margin-top:18px;font-size:13px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--sp_line);vertical-align:top}
+  th{color:var(--sp_sub);font-weight:500;font-size:12.5px;letter-spacing:.5px}
+  td .sp_pass{color:var(--sp_green)}
+  td .sp_fix{color:var(--sp_red)}
+
+  .sp_faq{display:grid;gap:12px;margin-top:18px}
+  .sp_faq details{
+    background:var(--sp_panel);border:1px solid var(--sp_line);border-radius:12px;padding:14px 18px;
+  }
+  .sp_faq summary{cursor:pointer;font-size:14px;color:var(--sp_txt)}
+  .sp_faq p{font-size:13px;color:var(--sp_sub);line-height:1.85;margin-top:10px}
+
+  @media (max-width:720px){
+    .swiper{height:260px}
+    .sp_grid{grid-template-columns:1fr}
+    h1{font-size:25px}
+  }
+</style>
+</head>
+<body>
+
+<div class="sp_top">
+  <a class="sp_back" href="index.html">← 返回三关任务</a>
+</div>
+
+<div class="sp_wrap">
+
+  <div class="sp_badge">任务一 · ⭐⭐ 提示词工程师</div>
+  <h1>让 AI 听懂需求，而不是听懂「大概」</h1>
+  <p class="sp_lead">
+    这一关不写代码，只写提示词。目标配置是 <code>new Swiper('#spSw4', {...})</code>，
+    四条需求：① 无缝循环 ② 3.2 秒自动翻页且手动操作后不停止 ③ 圆点分页器可点击 ④ 初始效果 cube。
+    下面这条轮播跑的就是最终配置，可以自己拖、点圆点看效果。
+  </p>
+
+  <div class="sp_demo">
+    <div class="sp_demo_head">
+      <b>🎛️ 演示四 · 效果实验台（初始 cube）</b>
+      <span class="sp_live">运行中 · 每 3.2s 自动翻页</span>
+    </div>
+    <div class="swiper" id="spSw4">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide sp_slide">
+          <img src="images/tiangong.jpg" alt="天宫空间站">
+          <div class="sp_cap"><h3>天宫空间站</h3><p>2022 年全面建成 · 中国人的太空家园</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/fuxing.jpg" alt="复兴号动车组">
+          <div class="sp_cap"><h3>复兴号动车组</h3><p>350 km/h · 世界商业运营最高时速</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/c919.jpg" alt="C919 大飞机">
+          <div class="sp_cap"><h3>C919 大飞机</h3><p>2023 年商业首航 · 国产干线客机翱翔蓝天</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/fendouzhe.jpg" alt="奋斗者号">
+          <div class="sp_cap"><h3>奋斗者号</h3><p>10909 米 · 触碰地球第四极</p></div>
+        </div>
+        <div class="swiper-slide sp_slide">
+          <img src="images/fast.jpg" alt="中国天眼 FAST">
+          <div class="sp_cap"><h3>中国天眼 FAST</h3><p>500 米口径 · 世界最大单口径射电望远镜</p></div>
+        </div>
+      </div>
+      <div class="swiper-pagination sp_pag" id="spPag4"></div>
+    </div>
+  </div>
+
+  <div class="sp_sec">
+    <h2>需求拆解 <span>写提示词前先拆</span></h2>
+    <div class="sp_grid">
+      <div class="sp_req">
+        <b>① 无缝循环</b>
+        <p>最后一张往后翻要回到第一张，不能到头卡住 → <code>loop: true</code></p>
+      </div>
+      <div class="sp_req">
+        <b>② 3.2 秒自动翻页，手动后不停</b>
+        <p>默认交互后会自动停止，必须显式关掉 → <code>disableOnInteraction: false</code></p>
+      </div>
+      <div class="sp_req">
+        <b>③ 圆点分页器可点击</b>
+        <p>只写 <code>el</code> 只是显示圆点，点不动 → 还要 <code>clickable: true</code></p>
+      </div>
+      <div class="sp_req">
+        <b>④ 初始效果 cube</b>
+        <p>要 3D 立方体，同时把切换时长调到 800ms 才有立体感 → <code>effect: 'cube'</code></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sp_sec">
+    <h2>第 1 轮提示词 <span>AI 答案有漏项</span></h2>
+
+    <div class="sp_round">
+      <h3><i>提示词 v1</i><em class="sp_fix">漏 2 项</em></h3>
+      <div class="sp_label">我的原始提示词</div>
+      <div class="sp_quote">
+        用 Swiper 11 给 id 为 spSw4 的轮播写初始化配置：要循环播放，每 3.2 秒自动翻页，
+        底部有圆点分页器，效果用 cube。
+      </div>
+
+      <div class="sp_label">AI 第 1 轮回答</div>
+      <pre><code><span class="sp_kw">new</span> Swiper(<span class="sp_str">'#spSw4'</span>, {
+  loop: <span class="sp_kw">true</span>,
+  autoplay: { delay: <span class="sp_kw">3200</span> },          <span class="sp_cm">// 问题1：没写 disableOnInteraction</span>
+  pagination: { el: <span class="sp_str">'#spPag4'</span> },        <span class="sp_cm">// 问题2：没写 clickable</span>
+  effect: <span class="sp_str">'cube'</span>
+});</code></pre>
+
+      <div class="sp_label">我当时的判断</div>
+      <div class="sp_quote">
+        代码能跑，肉眼看着也「像那么回事」，但一动手就露馅：<b>拖一下轮播，自动播放就停了</b>；
+        <b>圆点亮着却点不动</b>。这两条正是被 AI 悄悄省略的细节。
+      </div>
+    </div>
+
+    <div class="sp_round">
+      <h3><i>提示词 v2</i><em class="sp_ok">四项全中</em></h3>
+      <div class="sp_label">我的第二轮提示词（把隐式要求写成显式约束）</div>
+      <div class="sp_quote">
+        上一版有两个问题：用户手动拖动后自动播放停了，圆点也点不动。
+        请修改：① <code>autoplay</code> 里加 <code>disableOnInteraction: false</code>，保证手动操作后继续自动翻；
+        ② <code>pagination</code> 加 <code>clickable: true</code>，让圆点可点击跳转；
+        ③ 保留 loop:true 和 effect:'cube'；④ 另外把切换速度设成 800ms，让立方体转动更明显。
+        只给配置对象，不要多余解释。
+      </div>
+
+      <div class="sp_label">AI 第 2 轮回答（最终采用）</div>
+      <pre><code><span class="sp_kw">new</span> Swiper(<span class="sp_str">'#spSw4'</span>, {
+  loop: <span class="sp_kw">true</span>,
+  effect: <span class="sp_str">'cube'</span>,
+  speed: <span class="sp_kw">800</span>,
+  cubeEffect: { shadow: <span class="sp_kw">true</span>, slideShadows: <span class="sp_kw">true</span> },
+  autoplay: {
+    delay: <span class="sp_kw">3200</span>,
+    disableOnInteraction: <span class="sp_kw">false</span>
+  },
+  pagination: { el: <span class="sp_str">'#spPag4'</span>, clickable: <span class="sp_kw">true</span> }
+});</code></pre>
+    </div>
+  </div>
+
+  <div class="sp_sec">
+    <h2>验证结果 <span>逐项对照</span></h2>
+    <table>
+      <thead>
+        <tr><th>需求</th><th>对应参数</th><th>验证方式</th><th>结论</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>无缝循环</td><td>loop: true</td>
+          <td>停在最后一张继续往后翻</td>
+          <td><span class="sp_pass">✔ 回到第一张，无空白</span></td>
+        </tr>
+        <tr>
+          <td>3.2s 自动 + 手动后不停</td><td>autoplay.delay / disableOnInteraction</td>
+          <td>拖动一次后静止等约 3 秒</td>
+          <td><span class="sp_pass">✔ 继续自动翻页</span></td>
+        </tr>
+        <tr>
+          <td>圆点可点击</td><td>pagination.clickable</td>
+          <td>直接点第 4 个圆点</td>
+          <td><span class="sp_pass">✔ 立即跳到第 4 张</span></td>
+        </tr>
+        <tr>
+          <td>初始 cube</td><td>effect: 'cube'</td>
+          <td>刷新后观察首次切换</td>
+          <td><span class="sp_pass">✔ 立方体旋转，非平推</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sp_sec">
+    <h2>答辩抽问 <span>先想再看</span></h2>
+    <div class="sp_faq">
+      <details>
+        <summary>第一版提示词漏掉了哪个需求？</summary>
+        <p>漏的是两个「隐性默认值」：autoplay 的 disableOnInteraction 和 pagination 的 clickable。
+        它们都有默认值，所以不写也不报错，但行为跟需求相反——这正是提示词要写清约束的原因。</p>
+      </details>
+      <details>
+        <summary>第二轮是怎么「说清楚」的？</summary>
+        <p>不再描述目的（「手动后不停」），而是直接给出参数名和取值（disableOnInteraction: false），
+        并点名上一版的具体故障现象。目的描述容易被自由发挥，参数约束不会。</p>
+      </details>
+      <details>
+        <summary>AI 第一次给的代码错在哪？</summary>
+        <p>不是语法错，是「语义错」：能跑、能看，但自动播放会被交互打断、圆点点了没反应。
+        所以 AI 代码必须逐条对照需求做行为验证，而不是只看有没有报错。</p>
+      </details>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  // 苏鹏：初始化演示四轮播，配置为任务一两轮提示词打磨后的最终版本
+  const sp_swiper4 = new Swiper('#spSw4', {
+    loop: true,
+    effect: 'cube',
+    speed: 800,
+    cubeEffect: { shadow: true, slideShadows: true },
+    autoplay: {
+      delay: 3200,
+      disableOnInteraction: false
+    },
+    pagination: { el: '#spPag4', clickable: true }
+  });
+</script>
+</body>
+</html>
