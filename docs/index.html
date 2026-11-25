@@ -1,160 +1,90 @@
 <!--
 作者: 苏鹏
-建立时间: 2026-11-23 22:10
+建立时间: 2026-11-25 15:35
 使用大模型: DeepSeek-V4.1-Flash
-功能名称: Swiper 轮播组件 · 大国重器光影展 三关任务入口
+功能名称: 站点入口页（课堂作品集 · Swiper 轮播任务）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大国重器光影展 · Swiper 三关任务</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>苏鹏 · 课堂作品集</title>
 <style>
-  :root{
-    --sp_bg:#0a1120;
-    --sp_panel:#111c2f;
-    --sp_panel2:#16233a;
-    --sp_line:rgba(255,255,255,.08);
-    --sp_txt:#e9eef8;
-    --sp_sub:#9aabc4;
-    --sp_gold:#f2c45a;
-    --sp_cyan:#5fd0ff;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
-    background:radial-gradient(1200px 600px at 20% -10%,#1b2f52 0%,transparent 60%),var(--sp_bg);
-    color:var(--sp_txt);
-    min-height:100vh;
-    padding:56px 20px 72px;
-  }
-  .sp_wrap{max-width:960px;margin:0 auto}
-  .sp_tag{
-    display:inline-block;font-size:12px;letter-spacing:2px;
-    color:var(--sp_gold);border:1px solid rgba(242,196,90,.45);
-    padding:6px 12px;border-radius:999px;margin-bottom:22px;
-  }
-  h1{font-size:40px;line-height:1.25;letter-spacing:1px}
-  h1 em{font-style:normal;color:var(--sp_gold)}
-  .sp_lead{color:var(--sp_sub);margin-top:14px;line-height:1.9;font-size:15px;max-width:640px}
-  .sp_meta{
-    display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;
-  }
-  .sp_meta span{
-    font-size:12.5px;color:var(--sp_sub);
-    background:rgba(255,255,255,.04);
-    border:1px solid var(--sp_line);
-    padding:6px 12px;border-radius:8px;
-  }
-  .sp_list{display:grid;gap:16px;margin-top:48px}
-  .sp_item{
-    display:block;text-decoration:none;color:inherit;
-    background:linear-gradient(140deg,var(--sp_panel2),var(--sp_panel));
-    border:1px solid var(--sp_line);
-    border-radius:16px;padding:24px 26px;
-    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
-    position:relative;overflow:hidden;
-  }
-  .sp_item::after{
-    content:"";position:absolute;inset:0;border-radius:16px;
-    background:linear-gradient(120deg,rgba(242,196,90,.10),transparent 45%);
-    opacity:0;transition:opacity .25s ease;
-  }
-  .sp_item:hover{transform:translateY(-3px);border-color:rgba(242,196,90,.5);box-shadow:0 18px 40px -18px rgba(0,0,0,.9)}
-  .sp_item:hover::after{opacity:1}
-  .sp_head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .sp_num{
-    width:34px;height:34px;border-radius:10px;flex:0 0 auto;
-    display:grid;place-items:center;font-weight:700;font-size:15px;
-    background:rgba(242,196,90,.14);color:var(--sp_gold);
-    border:1px solid rgba(242,196,90,.3);
-  }
-  .sp_head h2{font-size:19px;font-weight:600}
-  .sp_star{font-size:12px;color:var(--sp_gold);letter-spacing:1px;margin-left:auto}
-  .sp_desc{color:var(--sp_sub);font-size:13.5px;line-height:1.85;margin-top:12px;padding-left:46px}
-  .sp_go{
-    display:inline-block;margin-top:14px;margin-left:46px;
-    font-size:13px;color:var(--sp_cyan);
-  }
-  .sp_foot{
-    margin-top:52px;padding-top:22px;border-top:1px solid var(--sp_line);
-    font-size:12.5px;color:#6f7f96;line-height:1.9;
-  }
-  .sp_foot a{color:var(--sp_sub);text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.22)}
-  @media (max-width:560px){
-    body{padding:36px 16px 56px}
-    h1{font-size:28px}
-    .sp_desc,.sp_go{margin-left:0;padding-left:0}
-    .sp_star{margin-left:0}
-  }
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sp_c_paper: #F3F4F6;
+  --sp_c_card: #FFFFFF;
+  --sp_c_ink: #1C2430;
+  --sp_c_muted: #75808F;
+  --sp_c_line: #DCE1E8;
+  --sp_c_violet: #4A2E8C;
+  --sp_c_violet_soft: #EAE5F6;
+}
+body {
+  background: var(--sp_c_paper);
+  color: var(--sp_c_ink);
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  line-height: 1.7;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px 40px;
+}
+.sp_card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--sp_c_card);
+  border: 1px solid var(--sp_c_line);
+  border-radius: 18px;
+  padding: 26px 22px;
+}
+.sp_card h1 { font-size: 23px; margin-bottom: 6px; }
+.sp_card h1 em { font-style: normal; color: var(--sp_c_violet); }
+.sp_sub { font-size: 13px; color: var(--sp_c_muted); margin-bottom: 16px; }
+.sp_id {
+  display: flex; flex-wrap: wrap; gap: 6px 16px;
+  padding: 10px 14px; margin-bottom: 18px;
+  background: var(--sp_c_violet_soft);
+  border-radius: 12px;
+  font-size: 12px; font-weight: 600; color: var(--sp_c_violet);
+}
+.sp_entry {
+  display: block;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--sp_c_line);
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.sp_entry:active { transform: scale(.98); border-color: var(--sp_c_violet); }
+.sp_entry strong { display: block; font-size: 15px; }
+.sp_entry span { display: block; font-size: 12px; color: var(--sp_c_muted); }
+.sp_go { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--sp_c_violet); }
+.sp_foot { margin-top: 16px; text-align: center; font-size: 11px; color: var(--sp_c_muted); }
 </style>
 </head>
 <body>
-<div class="sp_wrap">
+  <div class="sp_card">
+    <h1>苏鹏 · 课堂<em>作品集</em></h1>
+    <p class="sp_sub">高级网页设计 · Swiper 轮播组件专题</p>
 
-  <div class="sp_tag">组件库专题 · 课堂任务</div>
-  <h1>大国重器 <em>光影展</em></h1>
-  <p class="sp_lead">
-    用 Swiper 轮播组件，为中国的科技名片办一场线上光影展。
-    下面三关从「写提示词」到「自学未讲的 API」，再到「综合创作 + 技术答辩」，逐关进阶。
-  </p>
+    <div class="sp_id">
+      <span>姓名：苏鹏</span>
+      <span>学号：24002120412</span>
+      <span>班级：电子商务24004班</span>
+    </div>
 
-  <div class="sp_meta">
-    <span>苏鹏</span>
-    <span>24002120412</span>
-    <span>Swiper 11 · CDN</span>
-    <span>2026-11-23</span>
+    <a class="sp_entry" href="swiper/index.html">
+      <strong>🎞️ Swiper 轮播 · 大国重器光影展</strong>
+      <span>任务一 提示词工程 / 任务二 creative 电影墙 / 任务三 综合创作</span>
+      <span class="sp_go">打开页面 →</span>
+    </a>
+
+    <p class="sp_foot">GitHub Pages · 手机访问体验更完整</p>
   </div>
-
-  <div class="sp_list">
-
-    <a class="sp_item" href="sp-task1.html">
-      <div class="sp_head">
-        <div class="sp_num">1</div>
-        <h2>提示词工程师 · 让 AI 听懂需求</h2>
-        <div class="sp_star">⭐⭐</div>
-      </div>
-      <p class="sp_desc">
-        不写代码，只写提示词：把「无缝循环 + 3.2 秒自动翻页 + 圆点可点 + 初始 cube」翻译给 AI，
-        迭代两轮，再把 AI 给的配置亲手贴进页面验证。
-      </p>
-      <span class="sp_go">进入任务一 →</span>
-    </a>
-
-    <a class="sp_item" href="sp-task2.html">
-      <div class="sp_head">
-        <div class="sp_num">2</div>
-        <h2>creative 仿写 · 课堂没讲，AI 教你</h2>
-        <div class="sp_star">⭐⭐⭐</div>
-      </div>
-      <p class="sp_desc">
-        Swiper 的第 7 种效果 creative：上一张缩小左移带角度，下一张放大右移进场，
-        为效果实验台加上「creative 电影墙」按钮。
-      </p>
-      <span class="sp_go">进入任务二 →</span>
-    </a>
-
-    <a class="sp_item" href="sp-task3.html">
-      <div class="sp_head">
-        <div class="sp_num">3</div>
-        <h2>综合创作 · 第六件展品 + 超纲能力</h2>
-        <div class="sp_star">⭐⭐⭐⭐</div>
-      </div>
-      <p class="sp_desc">
-        用 AI 生成「爱达·魔都号」横版大图补进光影展，并加上课堂上没讲过的键盘控制能力，
-        附关键对话记录应对答辩四连问。
-      </p>
-      <span class="sp_go">进入任务三 →</span>
-    </a>
-
-  </div>
-
-  <p class="sp_foot">
-    图片均由 AI 生成（16:9 横版），全部在本地 <code>images/</code> 目录，不依赖外链。<br>
-    课程原页面：<a href="https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson" target="_blank" rel="noopener">Swiper 轮播组件库 · 大国重器光影展</a>
-  </p>
-
-</div>
 </body>
 </html>
